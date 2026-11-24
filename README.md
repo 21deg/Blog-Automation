@@ -97,6 +97,24 @@ morning. It:
 The WordPress login is an application password saved as a network secret on the cloud
 environment. To run the scripts elsewhere, set `WP_USER` and `WP_APP_PASSWORD`.
 
+## Featured images
+
+Every scheduled post gets a featured image, uploaded with alt text. The house style comes from a
+review of the existing blog images (`blog_automation/prompts/image_style.md`): flat editorial
+illustration, navy, teal and beige with a saffron accent, Indian people and settings, rupees only,
+no text, 3:2 landscape.
+
+- **Nano Banana** (`gemini-nano-banana-2.1`, about $0.034 per image) is used when a Google AI
+  Studio API key is saved for `generativelanguage.googleapis.com`. Google offers no free API tier
+  for its image models.
+- **Free fallback:** a branded title card in the same palette, drawn locally.
+
+To make the image again, or attach it to an existing post:
+
+```bash
+python -m blog_automation image output/<folder> --post-id <id>
+```
+
 ## Configuration
 Everything is in `blog_automation/config.py`:
 - model (`claude-opus-5-5`)

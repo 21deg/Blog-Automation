@@ -58,6 +58,10 @@ For each post that passed, in order (n = 1, 2, …):
 ```bash
 python -m blog_automation publish <output folder> --slot <n> --count <number of passed posts>
 ```
+`publish` also makes the featured image (Nano Banana if a Google AI Studio key is saved, otherwise
+a branded title card), uploads it with alt text and sets it as the post's featured image. If the
+image step fails, the post is still scheduled and the digest flags the missing image.
+
 Posts are scheduled between 11:00 and 20:00 IST, at least 4 hours after this run, so there is a
 review window. Then mark used backlog topics:
 `python -m blog_automation backlog --mark <id> <id> ...`

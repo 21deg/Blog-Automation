@@ -35,14 +35,34 @@ def publish_folder(folder: str, publish_at: datetime | None, force: bool = False
         publish_at=None if draft else publish_at, status="draft" if draft else None)
     wp.set_seo(created["id"], title_tag=post["title_tag"], meta_description=post["meta_description"],
                focus_keyword=post["focus_keyword"])
+    image = attach_image(created["id"], folder_p)
     entry = {**created, "title": post["h1"], "title_tag": post["title_tag"], "folder": str(folder_p),
              "publish_at_ist": publish_at.astimezone(wp.IST).strftime("%d %b %Y, %I:%M %p IST") if publish_at and not draft else "draft",
+             "image": image,
              "warnings": [l for l in checks.splitlines() if l.startswith(("WARN", "FAIL"))]}
     log_path = daily_log_path(datetime.now(wp.IST))
     log = _load(log_path, [])
     log.append(entry)
     log_path.write_text(json.dumps(log, ensure_ascii=False, indent=1))
     return entry
+
+
+def attach_image(post_id: int, folder: Path) -> dict:
+    """Make (if needed), upload and set the featured image. Never blocks publishing: on failure the
+    post keeps going and the digest flags the missing image."""
+    from .generator import BlogPost
+    from . import images
+    try:
+        post = BlogPost.model_validate_json((folder / "post.json").read_text())
+        meta_path = folder / "featured.json"
+        meta = json.loads(meta_path.read_text()) if meta_path.exists() and (folder / "featured.jpg").exists() \
+            else images.make_featured_image(post, str(folder))
+        media = wp.upload_media((folder / "featured.jpg").read_bytes(), f"{post.slug}.jpg", "image/jpeg",
+                                alt_text=post.image_alt, title=post.h1)
+        wp.set_featured_image(post_id, media["id"])
+        return {"engine": meta["engine"], "media_id": media["id"], "url": media["url"]}
+    except Exception as e:  # noqa: BLE001 - an image problem must not stop the post
+        return {"engine": "none", "error": str(e)[:200]}
 
 
 def next_slots(count: int, now: datetime | None = None) -> list[datetime]:
@@ -101,6 +121,11 @@ def digest(day: datetime | None = None) -> tuple[str, str]:
     for i, e in enumerate(log, 1):
         lines += [f"{i}. {e['title']}", f"   Goes live: {e['publish_at_ist']}", f"   Edit: {e['edit_link']}",
                   f"   Preview: {e['link']}"]
+        img = e.get("image") or {}
+        if img.get("engine") == "branded-card":
+            lines.append("   Image: branded title card (add an illustration if you like)")
+        elif img.get("engine") == "none":
+            lines.append(f"   Image: MISSING, add one before it goes live ({img.get('error', '')[:80]})")
         lines += [f"   Check: {w}" for w in e.get("warnings", [])]
         lines.append("")
     lines.append("Indexing: Rank Math submits each post to Bing and IndexNow when it goes live; Google picks it up from the sitemap.")

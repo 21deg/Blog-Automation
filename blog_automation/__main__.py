@@ -13,6 +13,7 @@ Without an API key (Claude in a Claude Code session does the writing):
   python -m blog_automation digest              # today's review email text
   python -m blog_automation wp-check            # verify the WordPress login
   python -m blog_automation fetch URL [URL...]  # readable text of a page, for research
+  python -m blog_automation image output/<folder> [--post-id N]  # featured image (+ attach)
 """
 from __future__ import annotations
 
@@ -99,6 +100,17 @@ def cmd_fetch(args):
             print(json.dumps({"url": u, "error": str(e)}))
 
 
+def cmd_image(args):
+    from pathlib import Path
+    from .generator import BlogPost
+    from . import images
+    post = BlogPost.model_validate_json((Path(args.folder) / "post.json").read_text())
+    print(json.dumps(images.make_featured_image(post, args.folder, engine=args.engine), ensure_ascii=False, indent=1))
+    if args.post_id:
+        from pathlib import Path as P
+        print(json.dumps(publisher.attach_image(args.post_id, P(args.folder)), indent=1))
+
+
 def cmd_wp_check(args):
     print(json.dumps(wordpress.whoami(), indent=1))
 
@@ -133,6 +145,10 @@ def main(argv=None):
     pb.set_defaults(func=cmd_publish)
     sub.add_parser("digest").set_defaults(func=cmd_digest)
     sub.add_parser("wp-check").set_defaults(func=cmd_wp_check)
+    im = sub.add_parser("image", help="make the featured image; with --post-id also upload and attach it")
+    im.add_argument("folder"); im.add_argument("--post-id", type=int)
+    im.add_argument("--engine", choices=["auto", "nano-banana", "card"], default=None)
+    im.set_defaults(func=cmd_image)
     fe = sub.add_parser("fetch"); fe.add_argument("urls", nargs="+"); fe.add_argument("--max-chars", type=int, default=12000)
     fe.set_defaults(func=cmd_fetch)
     args = p.parse_args(argv)

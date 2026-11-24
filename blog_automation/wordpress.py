@@ -140,3 +140,29 @@ def similar_existing(keyword: str, posts: list[dict], threshold: float = 0.6) ->
         if len(kw & words) / len(kw) >= threshold:
             return p
     return None
+
+
+def upload_media(data: bytes, filename: str, mime: str, alt_text: str, title: str) -> dict:
+    """Upload an image to the media library and set its alt text."""
+    req = urllib.request.Request(f"{API}/wp/v2/media", data=data, method="POST", headers={
+        "Content-Type": mime, "Content-Disposition": f'attachment; filename="{filename}"',
+        "Accept": "application/json", "User-Agent": "21degrees-blog-automation"})
+    user, pw = os.environ.get("WP_USER"), os.environ.get("WP_APP_PASSWORD")
+    if user and pw:
+        req.add_header("Authorization", "Basic " + base64.b64encode(f"{user}:{pw}".encode()).decode())
+    for attempt in range(6):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                media = json.loads(resp.read().decode())
+                break
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 502, 503, 504) and attempt < 5:
+                time.sleep(min(int(e.headers.get("Retry-After") or 0) or 15 * 2 ** attempt, 300))
+                continue
+            _raise(e, "POST", "/wp/v2/media")
+    _request("POST", f"/wp/v2/media/{media['id']}", {"alt_text": alt_text, "title": title})
+    return {"id": media["id"], "url": media.get("source_url")}
+
+
+def set_featured_image(post_id: int, media_id: int) -> None:
+    _request("POST", f"/wp/v2/posts/{post_id}", {"featured_media": media_id})

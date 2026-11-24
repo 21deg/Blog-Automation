@@ -59,3 +59,11 @@ startups). Busy, practical, sceptical of jargon. They search Google and ask Chat
 - title_tag: 60 characters or fewer, target keyword first, no brand suffix (the site adds it).
 - meta_description: 140-160 characters, answers the query, includes the keyword.
 - slug: 3-6 lowercase words joined by hyphens, keyword-led, no stop words, no dates.
+
+## Featured image fields
+- image_prompt: describe only the scene, in one or two sentences: who is in it, what they are
+  doing, the setting and one symbolic object that carries the post's idea. Indian people and
+  settings; money in rupees. Do not describe the art style, colours or text: the image pipeline adds
+  the house style from prompts/image_style.md. For trending people or events, use a symbolic scene,
+  never a real person's likeness.
+- image_alt: a plain description of what the image shows, under 125 characters.
