@@ -1,0 +1,387 @@
+<title>21DEGREES Blog Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single reading column (~68ch) with wide breakouts for tables, the chart and the pipeline. Ledger-like: figures in mono, hairline rules. */
+:root {
+  --bg: #f6f7f4;
+  --surface: #ffffff;
+  --ink: #17211f;
+  --muted: #56625e;
+  --rule: #d9ded9;
+  --accent: #1d6b57;
+  --accent-soft: #e3efe9;
+  --warn: #a4570d;
+  --warn-soft: #f8ecdc;
+  --bad: #a8322a;
+  --bad-soft: #f7e3e1;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111715; --surface: #18201e; --ink: #e6ece9; --muted: #9aa8a3; --rule: #2b3532;
+    --accent: #5cc4a3; --accent-soft: #1b2f29; --warn: #e3a35c; --warn-soft: #33281b;
+    --bad: #ec8a80; --bad-soft: #3a2220; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111715; --surface: #18201e; --ink: #e6ece9; --muted: #9aa8a3; --rule: #2b3532;
+  --accent: #5cc4a3; --accent-soft: #1b2f29; --warn: #e3a35c; --warn-soft: #33281b;
+  --bad: #ec8a80; --bad-soft: #3a2220; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  font-size: 1.0625rem; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 4rem;
+}
+.wrap { max-width: 68ch; margin: 0 auto; }
+.wide { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.15rem; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--accent); }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+section { padding-block: 3.5rem 0; display: grid; gap: 1.25rem; }
+.lede { font-size: 1.2rem; color: var(--muted); max-width: 60ch; }
+
+/* Hero */
+.hero { padding-block: 4rem 1rem; display: grid; gap: 1.25rem; border-bottom: 1px solid var(--rule); padding-bottom: 2.5rem; }
+.hero .meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; font-size: 0.9rem; color: var(--muted); }
+
+/* Ledger of key figures */
+.ledger { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid var(--ink); }
+.ledger div { padding: 1rem 1rem 1.1rem 0; border-bottom: 1px solid var(--rule); display: grid; gap: 0.25rem; align-content: start; }
+.ledger div:not(:nth-child(3n+1)) { padding-left: 1rem; border-left: 1px solid var(--rule); }
+.ledger .fig { font-family: var(--font-mono); font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.ledger .fig.bad { color: var(--bad); }
+.ledger .lab { font-size: 0.9rem; color: var(--muted); }
+@media (max-width: 640px) {
+  .ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ledger div:not(:nth-child(3n+1)) { padding-left: 0; border-left: 0; }
+  .ledger div:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--rule); }
+}
+
+/* Lists */
+.checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; }
+.checks li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 0.5rem; }
+.checks li::before { content: "✓"; color: var(--accent); font-weight: 700; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+@media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem; display: grid; gap: 0.75rem; align-content: start; min-width: 0; }
+.card .count { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); }
+.formula { font-family: var(--font-mono); font-size: 0.85rem; background: var(--accent-soft); padding: 0.6rem 0.75rem; border-radius: 4px; overflow-x: auto; }
+.card ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.3rem; color: var(--muted); font-size: 0.95rem; }
+
+/* Skeleton sequence (a real order, so numbered) */
+.seq { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 0; border-left: 2px solid var(--rule); }
+.seq li { counter-increment: s; position: relative; padding: 0.55rem 0 0.55rem 2.6rem; }
+.seq li::before { content: counter(s); position: absolute; left: -0.85rem; top: 0.55rem; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--bg); border: 2px solid var(--rule); font-family: var(--font-mono); font-size: 0.75rem; display: grid; place-items: center; color: var(--muted); }
+.seq li.boiler::before { border-color: var(--warn); color: var(--warn); }
+.seq q { font-style: italic; color: var(--muted); }
+.note { font-size: 0.9rem; color: var(--muted); }
+.note .sw { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 50%; border: 2px solid var(--warn); vertical-align: -0.1rem; margin-right: 0.3rem; }
+
+/* Tables */
+.tbl { overflow-x: auto; border-top: 2px solid var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.7rem 0.75rem 0.7rem 0; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.num, th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:first-child { white-space: nowrap; }
+.issues td:nth-child(2) { min-width: 14rem; }
+.issues td:nth-child(3) { min-width: 16rem; color: var(--muted); }
+.chip { display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px; white-space: nowrap; }
+.chip.high { background: var(--bad-soft); color: var(--bad); }
+.chip.med { background: var(--warn-soft); color: var(--warn); }
+.chip.low { background: var(--accent-soft); color: var(--accent); }
+
+/* Title-length chart */
+.chart { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 1.25rem; display: grid; gap: 0.75rem; }
+.bars { display: grid; gap: 0.35rem; position: relative; padding-top: 1.3rem; }
+.bar { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 0.75rem; align-items: center; font-size: 0.82rem; }
+.bar .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.bar .track { position: relative; height: 1.1rem; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--warn); opacity: 0.85; }
+.bar .fill.ok { background: var(--accent); }
+.bar .val { position: absolute; top: 0; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.1rem; padding-left: 0.35rem; color: var(--ink); }
+.limit { position: absolute; top: -0.3rem; bottom: -0.3rem; border-left: 2px dashed var(--bad); }
+.limit span { position: absolute; top: -1.3rem; left: -1.6rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--bad); white-space: nowrap; }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem; color: var(--muted); }
+.legend i { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 2px; margin-right: 0.35rem; vertical-align: -0.1rem; }
+@media (max-width: 560px) { .bar { grid-template-columns: minmax(0, 6.5rem) minmax(0, 1fr); } }
+
+/* Before / after */
+.ba { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.ba > div { padding: 1rem 1.1rem; display: grid; gap: 0.4rem; align-content: start; min-width: 0; }
+.ba > div + div { border-left: 1px solid var(--rule); background: var(--accent-soft); }
+.ba .t { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; line-height: 1.3; }
+.ba .u { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); word-break: break-all; }
+@media (max-width: 640px) { .ba { grid-template-columns: 1fr; } .ba > div + div { border-left: 0; border-top: 1px solid var(--rule); } }
+
+/* Pipeline */
+.pipe { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; counter-reset: p; }
+.pipe li { counter-increment: p; background: var(--surface); border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 4px; padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; font-size: 0.9rem; position: relative; min-width: 0; }
+.pipe li::before { content: "Step " counter(p); font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+.pipe li.human { border-top-color: var(--warn); }
+.pipe b { font-family: var(--font-display); font-size: 1.05rem; }
+.pipe span { color: var(--muted); }
+@media (max-width: 860px) { .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 460px) { .pipe { grid-template-columns: 1fr; } }
+
+.weights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.weights div { border-top: 2px solid var(--ink); padding-top: 0.6rem; display: grid; gap: 0.2rem; }
+.weights .fig { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 600; }
+.weights .lab { font-size: 0.88rem; color: var(--muted); }
+@media (max-width: 560px) { .weights { grid-template-columns: 1fr; } }
+
+ol.plain { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.6rem; }
+footer { margin-top: 4rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); font-size: 0.85rem; color: var(--muted); display: grid; gap: 0.5rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<header class="hero wrap">
+  <p class="eyebrow">Content and search review · November 2026</p>
+  <h1>21DEGREES Blog Review</h1>
+  <p class="lede">The blog has a strong, recognisable voice and covers trending topics quickly. A few technical gaps are holding it back on Google and in AI answers. This page covers what we found, what to change, and the system we built to write new posts from Google Trends.</p>
+  <div class="meta">
+    <span>Scope: <span class="mono">144</span> posts crawled, top <span class="mono">15</span> analysed in depth</span>
+    <span>Source: 21degrees.in/blogs</span>
+  </div>
+</header>
+
+<section class="wrap" aria-labelledby="h-figures">
+  <h2 id="h-figures">The numbers at a glance</h2>
+  <div class="ledger">
+    <div><span class="fig">1,845</span><span class="lab">median words in the top 15 posts</span></div>
+    <div><span class="fig bad">1</span><span class="lab">meta description shared by all 144 posts</span></div>
+    <div><span class="fig bad">0</span><span class="lab">links from one post to another</span></div>
+    <div><span class="fig bad">104</span><span class="lab">of 144 titles longer than Google shows (60 characters)</span></div>
+    <div><span class="fig bad">14/15</span><span class="lab">recent posts with no linked source for their statistics</span></div>
+    <div><span class="fig bad">0/15</span><span class="lab">recent posts with an FAQ section</span></div>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="h-working">
+  <h2 id="h-working">What is already working</h2>
+  <ul class="checks">
+    <li><span><strong>A voice people remember.</strong> Short, punchy openings such as <q>Two brothers from Bihar. Zero inheritance. One year. $1.5 billion.</q> Second person, confident, with an edge.</span></li>
+    <li><span><strong>Speed on the news.</strong> Posts land while a topic is still trending: an RBI rate move, a Supreme Court GST ruling, an India vs Zimbabwe match.</span></li>
+    <li><span><strong>Real Indian detail.</strong> Rupee figures, GST sections, ICAI fee scales and named regulators make the posts credible to Indian founders.</span></li>
+    <li><span><strong>A consistent brand identity.</strong> Posts repeatedly tie "21DEGREES" to "Virtual CFO" and "India". The firm credits this for a client who found it through ChatGPT.</span></li>
+    <li><span><strong>One post that already fits the target model.</strong> The tax accountant fees guide answers a clear search question with tables and price ranges. New posts should follow its lead.</span></li>
+  </ul>
+</section>
+
+<section class="wide" aria-labelledby="h-templates">
+  <div class="wrap" style="margin:0"><h2 id="h-templates">Two templates cover almost every post</h2></div>
+  <div class="two">
+    <div class="card">
+      <span class="count">7 of the top 15</span>
+      <h3>Trending story, then a business lesson</h3>
+      <p>A news, sport, politics or science story people are already searching for becomes a metaphor for business finance.</p>
+      <div class="formula">[Trending name]: What [detail] Teaches You About [finance topic]</div>
+      <ul>
+        <li>India vs Zimbabwe chase → startup cash flow</li>
+        <li>Bankipur by-election → business complacency</li>
+        <li>Google's Gemini delay → managing your flagship product</li>
+        <li>RBI rate decision → working capital and debt</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="count">5 of the top 15</span>
+      <h3>An industry's problems, then the 21DEGREES fix</h3>
+      <p>Picks one industry or one common frustration, lists its problems, and answers each with a 21DEGREES solution.</p>
+      <div class="formula">[Shock statistic]. [Second statistic]. Still trusting [the old way]?</div>
+      <ul>
+        <li>Restaurants (three posts) and manufacturing</li>
+        <li>Founders stuck in spreadsheets</li>
+        <li>Accountant and Virtual CFO fees in India</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="h-skeleton">
+  <h2 id="h-skeleton">Every recent post follows the same order</h2>
+  <p>The structure is borrowed from direct-response sales copy. Steps 4 to 9 are close to word-for-word identical across posts, roughly 300–500 words each time. Google treats repeated blocks like this as duplicate content.</p>
+  <ol class="seq">
+    <li>Punchy opening: short fragments or a shock statistic</li>
+    <li>The numbers: <q>The Numbers That Should Terrify You</q></li>
+    <li>Three to six numbered problems or lessons</li>
+    <li class="boiler"><q>Enter 21DEGREES Advisory Services Private Limited…</q></li>
+    <li class="boiler"><q>We Are Not Just Another Virtual CFO</q>: Pioneers, Not Imitators · Partners, Not Vendors</li>
+    <li class="boiler"><q>The Bottom Line</q> (10 of 15) or <q>The Final Verdict</q> (5 of 15)</li>
+    <li class="boiler"><q>Are You Ready to Stop Being a…?</q></li>
+    <li class="boiler"><q>P.S. – Still not sure? Let me leave you with this…</q></li>
+    <li class="boiler"><q>The question is not whether you can afford us…</q></li>
+  </ol>
+  <p class="note"><span class="sw" aria-hidden="true"></span>Repeated nearly word for word across posts</p>
+</section>
+
+<section class="wide" aria-labelledby="h-titles">
+  <div class="wrap" style="margin:0;display:grid;gap:0.75rem">
+    <h2 id="h-titles">Most titles are cut off in Google</h2>
+    <p>Google shows about 60 characters of a title. Thirteen of the top 15 run past that, and the finance keyword is often in the part that gets cut.</p>
+  </div>
+  <figure class="chart" style="margin:0">
+    <div class="legend"><span><i style="background:var(--accent)"></i>Fits in Google results</span><span><i style="background:var(--warn)"></i>Cut off</span><span class="mono">Characters per title</span></div>
+    <div class="bars" id="bars" role="img" aria-label="Title length in characters for the 15 most recent posts. 13 of 15 exceed the 60-character limit; the longest is 125."></div>
+  </figure>
+</section>
+
+<section class="wide" aria-labelledby="h-issues">
+  <div class="wrap" style="margin:0;display:grid;gap:0.75rem">
+    <h2 id="h-issues">What is holding rankings back</h2>
+    <p>Ordered by likely impact. Every item was measured from the live site.</p>
+  </div>
+  <div class="tbl">
+    <table class="issues">
+      <thead><tr><th>Impact</th><th>Issue</th><th>What we found</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip high">High</span></td><td>Every post has the same meta description</td><td>All 144 posts use "Virtual CFO services in Delhi, Noida &amp; Goa". The SEO plugin default was never changed, so Google writes its own snippets and click-through drops.</td></tr>
+        <tr><td><span class="chip high">High</span></td><td>Posts never link to each other</td><td>No post links to another post. Search engines and AI tools can't see the depth of expertise, and service pages get no boost.</td></tr>
+        <tr><td><span class="chip high">High</span></td><td>Statistics have no sources</td><td>14 of the 15 recent posts quote figures (for example "41% of restaurants never make a profit") without a link. AI assistants rarely repeat claims they can't verify.</td></tr>
+        <tr><td><span class="chip high">High</span></td><td>No question-and-answer content</td><td>No FAQ sections and no FAQ schema. Headings are slogans ("The Bottom Line") rather than the questions people search. This rules out Google's "People also ask" and AI Overviews.</td></tr>
+        <tr><td><span class="chip med">Medium</span></td><td>Titles are too long and lead with the news</td><td>Titles run 41–125 characters. News sites win the news term, and the finance keyword sits at the end.</td></tr>
+        <tr><td><span class="chip med">Medium</span></td><td>Thin author profile</td><td>Every post has the same byline, with no bio, credentials or LinkedIn link. Google looks closely at author expertise on finance topics.</td></tr>
+        <tr><td><span class="chip med">Medium</span></td><td>Duplicate posts</td><td>Two "Why Traditional Virtual CFO Models…" posts, two tax-fee guides, two identical e-commerce posts and two GST rate-change posts compete with each other.</td></tr>
+        <tr><td><span class="chip med">Medium</span></td><td>Categories carry no meaning</td><td>All 144 posts are tagged both Finance and Virtual CFO. RBI and restaurant posts are also tagged Career.</td></tr>
+        <tr><td><span class="chip low">Low</span></td><td>Images and housekeeping</td><td>Most posts have no in-article images, and alt text is often empty or reused. One URL starts with <span class="mono">/title-</span>. There is no <span class="mono">llms.txt</span> file to describe the site to AI tools.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="h-blueprint">
+  <h2 id="h-blueprint">The blueprint for new posts</h2>
+  <p>Keep the voice and the speed. Change the structure so the same post can rank on Google and be quoted by ChatGPT, Gemini and Perplexity.</p>
+  <div class="ba">
+    <div>
+      <span class="eyebrow">Today</span>
+      <span class="t">The Supreme Court Just Made Your Vendor Your Biggest Liability.</span>
+      <span class="u">63 chars · no keyword · /the-supreme-court-just-made-your-vendor-your-biggest-liability/</span>
+    </div>
+    <div>
+      <span class="eyebrow">Proposed title tag</span>
+      <span class="t">GST ITC Rule: Supreme Court Makes Buyers Pay for Vendor Default</span>
+      <span class="u">keyword first · /gst-itc-supreme-court-vendor-default/</span>
+    </div>
+  </div>
+  <p class="note">The punchy line can stay as the headline on the page. The title tag shown in Google leads with the search term.</p>
+  <ol class="seq">
+    <li><strong>Headline</strong> in the house voice, naming the trending topic</li>
+    <li><strong>Quick answer</strong> of 40–60 words directly under it. This is the part AI assistants quote.</li>
+    <li><strong>The punchy opening</strong>, kept from today's posts</li>
+    <li><strong>What happened</strong>, with at least two linked sources (RBI, CBIC, court orders, major newspapers)</li>
+    <li><strong>Three to six sections headed by real questions</strong>, each opening with a one-line answer</li>
+    <li><strong>A table or checklist</strong> and a worked example with rupee figures for an Indian business</li>
+    <li><strong>One short 21DEGREES section</strong>, under 150 words and written fresh for the topic</li>
+    <li><strong>FAQ</strong> of four to six questions, with FAQ schema for Google</li>
+    <li><strong>P.S. and booking link</strong>, plus three to five links to related 21DEGREES posts</li>
+  </ol>
+</section>
+
+<section class="wide" aria-labelledby="h-system">
+  <div class="wrap" style="margin:0;display:grid;gap:0.75rem">
+    <h2 id="h-system">The system we built: from Google Trends to a draft post</h2>
+    <p>A small program runs these steps. It writes a draft that is ready for review, and a person approves every post before it goes live.</p>
+  </div>
+  <ol class="pipe">
+    <li><b>Read trends</b><span>Today's trending searches in India, from Google Trends</span></li>
+    <li><b>Pick topics</b><span>Claude scores each trend for search volume, how naturally it leads to a finance lesson, and the keyword to target</span></li>
+    <li><b>Research</b><span>Claude searches the web for facts and figures, and keeps every source link</span></li>
+    <li><b>Write and check</b><span>Writes in the house style, then checks against the blueprint. Up to two automatic rewrites.</span></li>
+    <li class="human"><b>Review and publish</b><span>Your team checks the facts, adds an image and publishes on WordPress</span></li>
+  </ol>
+  <div class="wrap" style="margin:0;display:grid;gap:1rem">
+    <h3>How topics are scored</h3>
+    <p>Sport and celebrity stories bring real traffic to this blog, so they stay fully in play. Finance news gets a small boost because it also ranks on finance searches after the news fades.</p>
+    <div class="weights">
+      <div><span class="fig">1.15×</span><span class="lab">Finance and business news: RBI, GST, budget, court rulings, startups</span></div>
+      <div><span class="fig">1.0×</span><span class="lab">Sport, celebrity, film, politics and science, used as a business lesson</span></div>
+      <div><span class="fig">0×</span><span class="lab">Tragedies, and topics with no sensible business angle</span></div>
+    </div>
+    <p class="formula">score = search volume (log scale) × fit (0–10) × angle weight</p>
+    <h3>What every draft is checked for</h3>
+    <ul class="checks">
+      <li><span>Title of 60 characters or fewer, a meta description of 140–160 characters, and a short keyword-led URL</span></li>
+      <li><span>1,400–2,000 words, with at least half of the section headings phrased as questions</span></li>
+      <li><span>Every outside link came from the web research, so no invented sources</span></li>
+      <li><span>Every link to 21DEGREES points to a page that exists</span></li>
+      <li><span>Three to five brand mentions, and none of the repeated stock phrases</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="wrap" aria-labelledby="h-next">
+  <h2 id="h-next">One-time fixes for the website</h2>
+  <ol class="plain">
+    <li>Write a real meta description for each post, starting with the posts that get the most visits.</li>
+    <li>Merge or redirect the duplicate posts.</li>
+    <li>Replace the categories with six topic hubs: Virtual CFO, GST and compliance, cash flow, funding and banking, industry playbooks, tax planning. Give each hub a main page that links to its posts.</li>
+    <li>Add an author page with credentials and a LinkedIn link, and a "reviewed by" line on finance posts.</li>
+    <li>Add links, an FAQ and sources to the strongest existing guides (fees, when to hire a Virtual CFO, what a Virtual CFO package includes).</li>
+    <li>Publish an <span class="mono">llms.txt</span> file that summarises services, locations and key guides for AI tools.</li>
+  </ol>
+</section>
+
+<footer class="wrap">
+  <p>Method: all 144 posts in the site's post sitemap were crawled on 24 November 2026. "Top 15" means the 15 newest posts, which lead the blog page (23 July – 4 August 2026). Traffic data was not part of this review. Adding Search Console data would show which of these patterns bring the most clicks.</p>
+</footer>
+
+<script>
+(function () {
+  var data = [
+    ["Two Brothers from Bihar…", 121], ["From Zero to Crore…", 83], ["The Supreme Court Just Made…", 63],
+    ["The Bankipur Earthquake…", 97], ["Why 21DEGREES Is Redefining…", 56], ["Inside the Factory…", 115],
+    ["RBI Just Put Your Business on Notice…", 94], ["41% of Restaurants Never Make a Profit…", 113],
+    ["You Are an Idiot to Spend Your Nights…", 100], ["The Complete Guide to Tax Accountant Fees…", 106],
+    ["The Restaurant Business Is a Battlefield", 41], ["The Secret Ingredient Behind India's Best…", 104],
+    ["Google's Gemini Delay…", 116], ["The NISAR 'Hummingbird'…", 125], ["IND vs ZIM Scorecard…", 109]
+  ];
+  var max = 140, limit = 60, host = document.getElementById("bars");
+  if (!host) return;
+  data.forEach(function (d, i) {
+    var row = document.createElement("div"); row.className = "bar";
+    var name = document.createElement("span"); name.className = "name"; name.textContent = d[0]; name.title = d[0];
+    var track = document.createElement("div"); track.className = "track";
+    var fill = document.createElement("div"); fill.className = "fill" + (d[1] <= limit ? " ok" : "");
+    fill.style.width = (d[1] / max * 100) + "%";
+    var val = document.createElement("span"); val.className = "val"; val.textContent = d[1];
+    val.style.left = (d[1] / max * 100) + "%";
+    track.appendChild(fill); track.appendChild(val);
+    if (i === 0) {
+      var lim = document.createElement("div"); lim.className = "limit"; lim.style.left = (limit / max * 100) + "%";
+      var lab = document.createElement("span"); lab.textContent = "60 limit"; lim.appendChild(lab);
+      track.appendChild(lim);
+    }
+    row.appendChild(name); row.appendChild(track); host.appendChild(row);
+  });
+  // A single limit line spanning all rows
+  var first = host.querySelector(".limit");
+  if (first) {
+    first.remove();
+    var tracks = host.querySelectorAll(".track");
+    var top = tracks[0], bottom = tracks[tracks.length - 1];
+    var line = document.createElement("div"); line.className = "limit";
+    host.appendChild(line);
+    function place() {
+      var hb = host.getBoundingClientRect(), tb = top.getBoundingClientRect(), bb = bottom.getBoundingClientRect();
+      line.style.left = (tb.left - hb.left + tb.width * limit / max) + "px";
+      line.style.top = (tb.top - hb.top - 4) + "px";
+      line.style.bottom = (hb.bottom - bb.bottom - 4) + "px";
+    }
+    var lab2 = document.createElement("span"); lab2.textContent = "60 chars"; line.appendChild(lab2);
+    place(); window.addEventListener("resize", place);
+  }
+})();
+</script>
