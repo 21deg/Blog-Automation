@@ -7,7 +7,9 @@ set WP_USER and WP_APP_PASSWORD and they are sent as HTTP Basic auth.
 from __future__ import annotations
 
 import base64
+import functools
 import json
+import time
 import os
 import re
 import urllib.error
@@ -35,15 +37,24 @@ def _request(method: str, path: str, body: dict | None = None, params: dict | No
     user, pw = os.environ.get("WP_USER"), os.environ.get("WP_APP_PASSWORD")
     if user and pw:
         req.add_header("Authorization", "Basic " + base64.b64encode(f"{user}:{pw}".encode()).decode())
-    try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            payload = resp.read().decode() or "null"
-            return json.loads(payload), dict(resp.headers)
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode(errors="ignore")[:500]
-        if e.code in (401, 403):
-            raise WordPressError(f"WordPress refused the login ({e.code}). Check the saved application password. {detail}") from e
-        raise WordPressError(f"{method} {path} failed with {e.code}: {detail}") from e
+    for attempt in range(6):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                payload = resp.read().decode() or "null"
+                return json.loads(payload), dict(resp.headers)
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 502, 503, 504) and attempt < 5:
+                wait = int(e.headers.get("Retry-After") or 0) or 15 * 2 ** attempt  # 15s .. 4 min
+                time.sleep(min(wait, 300))
+                continue
+            _raise(e, method, path)
+
+
+def _raise(e, method, path):
+    detail = e.read().decode(errors="ignore")[:300]
+    if e.code in (401, 403):
+        raise WordPressError(f"WordPress refused the login ({e.code}). Check the saved application password. {detail}") from e
+    raise WordPressError(f"{method} {path} failed with {e.code}: {detail}") from e
 
 
 def whoami() -> dict:
@@ -52,6 +63,7 @@ def whoami() -> dict:
             "can_publish": bool((me.get("capabilities") or {}).get("publish_posts"))}
 
 
+@functools.lru_cache(maxsize=4)
 def list_posts(statuses: str = "publish,future,draft,pending") -> list[dict]:
     """All posts with id, slug, title, status and date (for de-duplication)."""
     out, page = [], 1
@@ -62,7 +74,8 @@ def list_posts(statuses: str = "publish,future,draft,pending") -> list[dict]:
         for r in rows:
             out.append({"id": r["id"], "slug": r["slug"], "status": r["status"], "date": r["date"],
                         "link": r.get("link"), "title": (r.get("title") or {}).get("raw") or ""})
-        if page >= int(headers.get("X-WP-TotalPages") or headers.get("x-wp-totalpages") or 1):
+        total_pages = next((v for k, v in headers.items() if k.lower() == "x-wp-totalpages"), "1")
+        if page >= int(total_pages):
             return out
         page += 1
 

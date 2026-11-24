@@ -5,6 +5,7 @@ Claude in this session does the topic scoring, research and writing. The repo's 
 checks, rendering, WordPress scheduling and digest. No Anthropic API key is needed.
 
 Hard rules:
+- Never give an existing post's keyword to a new post. Link to the older post instead.
 - Never schedule a post whose `finalize` checks fail.
 - Never edit, unpublish or delete existing posts on the site.
 - Only cite URLs you actually opened during research. Never invent figures, quotes or URLs.
@@ -41,8 +42,11 @@ that research for one post doesn't fill the main context. Give the subagent:
   pages in `SERVICE_PAGES` in `blog_automation/config.py`.
 
 The subagent must:
-1. Research with web search and fetch. Collect facts with their source URLs and prefer primary
-   sources (RBI, CBIC, PIB, courts, MCA) and major Indian publications.
+1. Research: find pages with web search, then read them with
+   `python -m blog_automation fetch <url> [<url> ...]`. The WebFetch tool cannot reach the web in
+   this environment; the `fetch` command goes through the environment's proxy and works. Collect
+   facts with their source URLs, and prefer primary sources (RBI, CBIC, PIB, courts, MCA) and major
+   Indian publications. Only pages that `fetch` actually returned text for go into sources.json.
 2. Write `work/<n>/post.json` (matching `BlogPost` exactly), `work/<n>/sources.json`
    (`{"url": "title"}` for every page it actually read) and `work/<n>/research.md` (its notes).
 3. Run `python -m blog_automation finalize work/<n>/post.json work/<n>/sources.json --research work/<n>/research.md`

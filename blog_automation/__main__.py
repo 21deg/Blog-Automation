@@ -12,6 +12,7 @@ Without an API key (Claude in a Claude Code session does the writing):
   python -m blog_automation publish output/<folder> --slot 1 --count 10
   python -m blog_automation digest              # today's review email text
   python -m blog_automation wp-check            # verify the WordPress login
+  python -m blog_automation fetch URL [URL...]  # readable text of a page, for research
 """
 from __future__ import annotations
 
@@ -89,6 +90,15 @@ def cmd_digest(args):
     print(subject + "\n\n" + body)
 
 
+def cmd_fetch(args):
+    from .fetch import fetch_text
+    for u in args.urls:
+        try:
+            print(json.dumps(fetch_text(u, args.max_chars), ensure_ascii=False, indent=1))
+        except Exception as e:
+            print(json.dumps({"url": u, "error": str(e)}))
+
+
 def cmd_wp_check(args):
     print(json.dumps(wordpress.whoami(), indent=1))
 
@@ -123,6 +133,8 @@ def main(argv=None):
     pb.set_defaults(func=cmd_publish)
     sub.add_parser("digest").set_defaults(func=cmd_digest)
     sub.add_parser("wp-check").set_defaults(func=cmd_wp_check)
+    fe = sub.add_parser("fetch"); fe.add_argument("urls", nargs="+"); fe.add_argument("--max-chars", type=int, default=12000)
+    fe.set_defaults(func=cmd_fetch)
     args = p.parse_args(argv)
     try:
         args.func(args)
