@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from datetime import datetime
 from typing import Literal
 
@@ -152,7 +153,7 @@ def generate(topic: dict, max_revisions: int = 2, log=print) -> dict:
     return save(post, notes, sources, checks, log=log)
 
 
-def save(post: BlogPost, notes: str, sources: dict[str, str], checks, log=print) -> dict:
+def save(post: BlogPost, notes: str, sources: dict[str, str], checks, log=print, svg_path: str | None = None) -> dict:
     OUTPUT_DIR.mkdir(exist_ok=True)
     folder = OUTPUT_DIR / f"{datetime.now():%Y%m%d}-{post.slug}"
     folder.mkdir(exist_ok=True)
@@ -162,6 +163,8 @@ def save(post: BlogPost, notes: str, sources: dict[str, str], checks, log=print)
     (folder / "sources.json").write_text(json.dumps(sources, ensure_ascii=False, indent=1))
     (folder / "research.md").write_text(notes + "\n\n## Sources\n" + "\n".join(f"- [{t}]({u})" for u, t in sources.items()))
     (folder / "checks.txt").write_text(validate.report(checks) + "\n")
+    if svg_path and Path(svg_path).exists():
+        (folder / "featured.svg").write_text(Path(svg_path).read_text())
     log(validate.report(checks))
     return {"folder": str(folder), "passed": not validate.failures(checks), "checks": [c.__dict__ for c in checks]}
 
@@ -174,4 +177,5 @@ def finalize(post_path: str, sources_path: str, research_path: str | None = None
     notes = open(research_path).read() if research_path else ""
     _, inventory_urls = link_inventory()
     checks = validate.run(post, render.to_markdown(post), set(sources), inventory_urls)
-    return save(post, notes, sources, checks, log=log)
+    svg = Path(post_path).with_name("featured.svg")
+    return save(post, notes, sources, checks, log=log, svg_path=str(svg) if svg.exists() else None)

@@ -107,7 +107,10 @@ no text, 3:2 landscape.
 - **Nano Banana** (`gemini-nano-banana-2.1`, about $0.034 per image) is used when a Google AI
   Studio API key is saved for `generativelanguage.googleapis.com`. Google offers no free API tier
   for its image models.
-- **Free fallback:** a branded title card in the same palette, drawn locally.
+- **Default (free):** Claude draws a flat SVG illustration for each post in the daily session
+  (`prompts/illustration_guide.md`, example in `assets/illustration_example.svg`), rendered to JPEG
+  with the pre-installed Chromium.
+- **Backup (free):** a branded title card in the same palette if a drawing is missing or broken.
 
 To make the image again, or attach it to an existing post:
 

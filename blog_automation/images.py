@@ -157,13 +157,42 @@ def _normalise(data: bytes) -> bytes:
     return buf.getvalue()
 
 
+RENDER_JS = Path(__file__).resolve().parent.parent / "scripts" / "render_svg.js"
+
+
+def check_svg(svg: str) -> None:
+    import re
+    import xml.etree.ElementTree as ET
+    ET.fromstring(svg)  # must be well-formed
+    if re.search(r"<\s*(script|image|foreignObject)\b|xlink:href=|href=\"http", svg, re.I):
+        raise ValueError("SVG may not contain scripts, embedded images or external links")
+    if len(svg.encode()) > 80_000:
+        raise ValueError("SVG is too large (keep it under 40 KB)")
+
+
+def render_svg(svg_path: Path, out: Path) -> bytes:
+    import subprocess
+    check_svg(svg_path.read_text())
+    subprocess.run(["node", str(RENDER_JS), str(svg_path), str(out)], check=True, capture_output=True, timeout=120)
+    return _normalise(out.read_bytes())
+
+
 def make_featured_image(post, folder: str, engine: str | None = None, log=print) -> dict:
-    """Create featured.jpg in the post folder. Returns {"path", "engine", "note"}."""
+    """Create featured.jpg in the post folder. Returns {"path", "engine", "note"}.
+    Order: Claude-drawn SVG illustration (featured.svg) if present, then Nano Banana when the
+    engine allows it, then the branded card."""
     engine = engine or IMAGES["engine"]
     out = Path(folder) / "featured.jpg"
     note = ""
     data = None
-    if engine in ("auto", "nano-banana"):
+    svg = Path(folder) / "featured.svg"
+    if svg.exists() and engine != "card-only":
+        try:
+            data, used = render_svg(svg, out), "illustration"
+        except Exception as e:  # noqa: BLE001
+            note = f"SVG illustration failed: {e}"[:200]
+            log(f"  {note}")
+    if data is None and engine in ("auto", "nano-banana"):
         try:
             raw, _ = generate_nano_banana(build_prompt(post))
             data, used = _normalise(raw), "nano-banana"

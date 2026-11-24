@@ -148,3 +148,13 @@ def test_slots_respect_window_and_review_time():
     assert noon[0] >= datetime(2026, 11, 25, 13, 30, tzinfo=wp.IST) and noon[-1].hour == 20
     night = publisher.next_slots(10, datetime(2026, 11, 25, 22, 0, tzinfo=wp.IST))
     assert night[0].day == 26 and night[0].hour == 11
+
+
+def test_svg_safety_checks():
+    from blog_automation import images
+    images.check_svg(open("blog_automation/assets/illustration_example.svg").read())
+    for bad in ['<svg xmlns="http://www.w3.org/2000/svg"><script>x</script></svg>',
+                '<svg xmlns="http://www.w3.org/2000/svg"><image href="http://x/y.png"/></svg>',
+                '<svg><rect></svg>']:
+        with pytest.raises(Exception):
+            images.check_svg(bad)

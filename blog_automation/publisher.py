@@ -56,7 +56,7 @@ def attach_image(post_id: int, folder: Path) -> dict:
         post = BlogPost.model_validate_json((folder / "post.json").read_text())
         meta_path = folder / "featured.json"
         meta = json.loads(meta_path.read_text()) if meta_path.exists() and (folder / "featured.jpg").exists() \
-            else images.make_featured_image(post, str(folder))
+            else images.make_featured_image(post, str(folder))  # uses featured.svg when present
         media = wp.upload_media((folder / "featured.jpg").read_bytes(), f"{post.slug}.jpg", "image/jpeg",
                                 alt_text=post.image_alt, title=post.h1)
         wp.set_featured_image(post_id, media["id"])
@@ -124,7 +124,7 @@ def digest(day: datetime | None = None) -> tuple[str, str]:
                   f"   Preview: {e['link']}"]
         img = e.get("image") or {}
         if img.get("engine") == "branded-card":
-            lines.append("   Image: branded title card. For an illustration, paste this into the free Gemini app or ChatGPT,")
+            lines.append("   Image: branded title card (the illustration could not be drawn). For an illustration, paste this into the free Gemini app or ChatGPT,")
             lines.append("   then replace the featured image in WordPress:")
             lines.append(f"   {img.get('prompt', '')}")
         elif img.get("engine") == "none":

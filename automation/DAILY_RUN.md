@@ -49,17 +49,24 @@ The subagent must:
    Indian publications. Only pages that `fetch` actually returned text for go into sources.json.
 2. Write `work/<n>/post.json` (matching `BlogPost` exactly), `work/<n>/sources.json`
    (`{"url": "title"}` for every page it actually read) and `work/<n>/research.md` (its notes).
-3. Run `python -m blog_automation finalize work/<n>/post.json work/<n>/sources.json --research work/<n>/research.md`
-   and fix the post until the output says PASSED (at most 3 attempts).
-4. Report back the output folder and pass or fail.
+3. Draw the featured illustration as `work/<n>/featured.svg`, following
+   `blog_automation/prompts/illustration_guide.md` and starting from
+   `blog_automation/assets/illustration_example.svg`. One scene that matches this post's idea;
+   vary people and objects from the other posts today.
+4. Run `python -m blog_automation finalize work/<n>/post.json work/<n>/sources.json --research work/<n>/research.md`
+   and fix the post until the output says PASSED (at most 3 attempts). This copies featured.svg
+   into the output folder.
+5. Run `python -m blog_automation image <output folder>` and look at the rendered
+   `featured.jpg` once. Fix anything broken in the SVG and render again (at most 2 attempts).
+6. Report back the output folder and pass or fail.
 
 ## 4. Schedule
 For each post that passed, in order (n = 1, 2, …):
 ```bash
 python -m blog_automation publish <output folder> --slot <n> --count <number of passed posts>
 ```
-`publish` also makes the featured image (Nano Banana if a Google AI Studio key is saved, otherwise
-a branded title card), uploads it with alt text and sets it as the post's featured image. If the
+`publish` also uploads the featured image (the drawn illustration; a branded title card if the
+drawing is missing or fails to render), uploads it with alt text and sets it as the post's featured image. If the
 image step fails, the post is still scheduled and the digest flags the missing image.
 
 Posts are scheduled between 11:00 and 20:00 IST, at least 4 hours after this run, so there is a

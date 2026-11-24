@@ -147,7 +147,7 @@ def main(argv=None):
     sub.add_parser("wp-check").set_defaults(func=cmd_wp_check)
     im = sub.add_parser("image", help="make the featured image; with --post-id also upload and attach it")
     im.add_argument("folder"); im.add_argument("--post-id", type=int)
-    im.add_argument("--engine", choices=["auto", "nano-banana", "card"], default=None)
+    im.add_argument("--engine", choices=["auto", "nano-banana", "card", "card-only"], default=None)
     im.set_defaults(func=cmd_image)
     fe = sub.add_parser("fetch"); fe.add_argument("urls", nargs="+"); fe.add_argument("--max-chars", type=int, default=12000)
     fe.set_defaults(func=cmd_fetch)
