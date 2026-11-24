@@ -1,0 +1,632 @@
+[
+ {
+  "id": "virtual-cfo-01",
+  "pillar": "virtual-cfo",
+  "question": "How much does a virtual CFO cost in India in 2026?",
+  "target_keyword": "virtual cfo cost india"
+ },
+ {
+  "id": "virtual-cfo-02",
+  "pillar": "virtual-cfo",
+  "question": "Virtual CFO vs full-time CFO: which does a ₹10 crore business need?",
+  "target_keyword": "virtual cfo vs full time cfo"
+ },
+ {
+  "id": "virtual-cfo-03",
+  "pillar": "virtual-cfo",
+  "question": "What does a virtual CFO actually do every month?",
+  "target_keyword": "virtual cfo monthly deliverables"
+ },
+ {
+  "id": "virtual-cfo-04",
+  "pillar": "virtual-cfo",
+  "question": "CA vs CFO: what is the difference for a growing business?",
+  "target_keyword": "ca vs cfo difference"
+ },
+ {
+  "id": "virtual-cfo-05",
+  "pillar": "virtual-cfo",
+  "question": "When should a startup hire its first CFO?",
+  "target_keyword": "when to hire a cfo startup"
+ },
+ {
+  "id": "virtual-cfo-06",
+  "pillar": "virtual-cfo",
+  "question": "Virtual CFO for D2C brands: what to expect",
+  "target_keyword": "virtual cfo for d2c brands"
+ },
+ {
+  "id": "virtual-cfo-07",
+  "pillar": "virtual-cfo",
+  "question": "How to choose a virtual CFO firm in Delhi NCR",
+  "target_keyword": "virtual cfo delhi ncr"
+ },
+ {
+  "id": "virtual-cfo-08",
+  "pillar": "virtual-cfo",
+  "question": "Virtual CFO services in Goa for hospitality businesses",
+  "target_keyword": "virtual cfo goa"
+ },
+ {
+  "id": "virtual-cfo-09",
+  "pillar": "virtual-cfo",
+  "question": "Questions to ask before hiring a virtual CFO",
+  "target_keyword": "questions to ask virtual cfo"
+ },
+ {
+  "id": "virtual-cfo-10",
+  "pillar": "virtual-cfo",
+  "question": "Fractional CFO vs virtual CFO: is there a difference?",
+  "target_keyword": "fractional cfo india"
+ },
+ {
+  "id": "virtual-cfo-11",
+  "pillar": "virtual-cfo",
+  "question": "What reports should your CFO send you every month?",
+  "target_keyword": "monthly mis report for business"
+ },
+ {
+  "id": "virtual-cfo-12",
+  "pillar": "virtual-cfo",
+  "question": "How a virtual CFO prepares you for a bank loan",
+  "target_keyword": "virtual cfo bank loan preparation"
+ },
+ {
+  "id": "virtual-cfo-13",
+  "pillar": "virtual-cfo",
+  "question": "Outsourced accounting vs virtual CFO: what each covers",
+  "target_keyword": "outsourced accounting services india"
+ },
+ {
+  "id": "virtual-cfo-14",
+  "pillar": "virtual-cfo",
+  "question": "Signs your business has outgrown its accountant",
+  "target_keyword": "outgrown accountant signs"
+ },
+ {
+  "id": "virtual-cfo-15",
+  "pillar": "virtual-cfo",
+  "question": "Virtual CFO for manufacturing SMEs in Noida",
+  "target_keyword": "virtual cfo noida manufacturing"
+ },
+ {
+  "id": "gst-compliance-01",
+  "pillar": "gst-compliance",
+  "question": "GST input tax credit: when can a buyer lose ITC because of the vendor?",
+  "target_keyword": "gst itc vendor default"
+ },
+ {
+  "id": "gst-compliance-02",
+  "pillar": "gst-compliance",
+  "question": "How to reconcile GSTR-2B with your purchase register",
+  "target_keyword": "gstr 2b reconciliation"
+ },
+ {
+  "id": "gst-compliance-03",
+  "pillar": "gst-compliance",
+  "question": "GST annual return GSTR-9: who must file and what it costs to get wrong",
+  "target_keyword": "gstr 9 annual return"
+ },
+ {
+  "id": "gst-compliance-04",
+  "pillar": "gst-compliance",
+  "question": "GST notice received: what to do in the first 7 days",
+  "target_keyword": "gst notice reply"
+ },
+ {
+  "id": "gst-compliance-05",
+  "pillar": "gst-compliance",
+  "question": "E-invoicing threshold for GST: does it apply to your business?",
+  "target_keyword": "e invoicing threshold gst"
+ },
+ {
+  "id": "gst-compliance-06",
+  "pillar": "gst-compliance",
+  "question": "TDS on payments to contractors under Section 194C explained",
+  "target_keyword": "tds section 194c"
+ },
+ {
+  "id": "gst-compliance-07",
+  "pillar": "gst-compliance",
+  "question": "ROC annual filing for private limited companies: deadlines and penalties",
+  "target_keyword": "roc annual filing private limited"
+ },
+ {
+  "id": "gst-compliance-08",
+  "pillar": "gst-compliance",
+  "question": "MSME payment rule under Section 43B(h): pay suppliers in 45 days or lose the deduction",
+  "target_keyword": "section 43b h msme payment"
+ },
+ {
+  "id": "gst-compliance-09",
+  "pillar": "gst-compliance",
+  "question": "GST on restaurant services: 5% vs 18% explained",
+  "target_keyword": "gst on restaurant services"
+ },
+ {
+  "id": "gst-compliance-10",
+  "pillar": "gst-compliance",
+  "question": "How to claim GST refund on exports",
+  "target_keyword": "gst refund on export"
+ },
+ {
+  "id": "gst-compliance-11",
+  "pillar": "gst-compliance",
+  "question": "GST registration for e-commerce sellers: rules and thresholds",
+  "target_keyword": "gst registration ecommerce seller"
+ },
+ {
+  "id": "gst-compliance-12",
+  "pillar": "gst-compliance",
+  "question": "Composition scheme under GST: who should opt in?",
+  "target_keyword": "gst composition scheme"
+ },
+ {
+  "id": "gst-compliance-13",
+  "pillar": "gst-compliance",
+  "question": "Reverse charge mechanism under GST: common mistakes",
+  "target_keyword": "reverse charge mechanism gst"
+ },
+ {
+  "id": "gst-compliance-14",
+  "pillar": "gst-compliance",
+  "question": "Compliance calendar for Indian startups",
+  "target_keyword": "compliance calendar startup india"
+ },
+ {
+  "id": "gst-compliance-15",
+  "pillar": "gst-compliance",
+  "question": "Statutory audit vs tax audit: what your business needs",
+  "target_keyword": "statutory audit vs tax audit"
+ },
+ {
+  "id": "cash-flow-01",
+  "pillar": "cash-flow",
+  "question": "How to build a 13-week cash flow forecast",
+  "target_keyword": "13 week cash flow forecast"
+ },
+ {
+  "id": "cash-flow-02",
+  "pillar": "cash-flow",
+  "question": "Profitable but no cash: why it happens and how to fix it",
+  "target_keyword": "profitable but no cash flow"
+ },
+ {
+  "id": "cash-flow-03",
+  "pillar": "cash-flow",
+  "question": "How to reduce receivable days without losing customers",
+  "target_keyword": "reduce debtor days"
+ },
+ {
+  "id": "cash-flow-04",
+  "pillar": "cash-flow",
+  "question": "Working capital cycle explained with a ₹ example",
+  "target_keyword": "working capital cycle"
+ },
+ {
+  "id": "cash-flow-05",
+  "pillar": "cash-flow",
+  "question": "Inventory management for SMEs: how much stock is too much?",
+  "target_keyword": "inventory management for sme"
+ },
+ {
+  "id": "cash-flow-06",
+  "pillar": "cash-flow",
+  "question": "Break-even analysis for a small business, step by step",
+  "target_keyword": "break even analysis small business"
+ },
+ {
+  "id": "cash-flow-07",
+  "pillar": "cash-flow",
+  "question": "Unit economics for D2C brands: CAC, AOV and contribution margin",
+  "target_keyword": "unit economics d2c"
+ },
+ {
+  "id": "cash-flow-08",
+  "pillar": "cash-flow",
+  "question": "How to cut costs without cutting growth",
+  "target_keyword": "cost reduction strategies business"
+ },
+ {
+  "id": "cash-flow-09",
+  "pillar": "cash-flow",
+  "question": "Cash flow vs profit: what founders confuse",
+  "target_keyword": "cash flow vs profit"
+ },
+ {
+  "id": "cash-flow-10",
+  "pillar": "cash-flow",
+  "question": "Restaurant food cost percentage: what is healthy in India?",
+  "target_keyword": "restaurant food cost percentage"
+ },
+ {
+  "id": "cash-flow-11",
+  "pillar": "cash-flow",
+  "question": "How to price your product for profit",
+  "target_keyword": "pricing strategy for profit"
+ },
+ {
+  "id": "cash-flow-12",
+  "pillar": "cash-flow",
+  "question": "Monthly budgeting for a small business",
+  "target_keyword": "business budgeting template"
+ },
+ {
+  "id": "cash-flow-13",
+  "pillar": "cash-flow",
+  "question": "Payables management: when to pay suppliers",
+  "target_keyword": "accounts payable management"
+ },
+ {
+  "id": "cash-flow-14",
+  "pillar": "cash-flow",
+  "question": "How to read a profit and loss statement in 10 minutes",
+  "target_keyword": "how to read profit and loss statement"
+ },
+ {
+  "id": "cash-flow-15",
+  "pillar": "cash-flow",
+  "question": "Financial KPIs every founder should track",
+  "target_keyword": "financial kpis for founders"
+ },
+ {
+  "id": "funding-banking-01",
+  "pillar": "funding-banking",
+  "question": "Cash credit vs overdraft: which suits your business?",
+  "target_keyword": "cash credit vs overdraft"
+ },
+ {
+  "id": "funding-banking-02",
+  "pillar": "funding-banking",
+  "question": "How the repo rate affects your business loan EMI",
+  "target_keyword": "repo rate business loan"
+ },
+ {
+  "id": "funding-banking-03",
+  "pillar": "funding-banking",
+  "question": "MSME loans without collateral: CGTMSE explained",
+  "target_keyword": "cgtmse loan without collateral"
+ },
+ {
+  "id": "funding-banking-04",
+  "pillar": "funding-banking",
+  "question": "How to prepare a CMA report for a bank loan",
+  "target_keyword": "cma report bank loan"
+ },
+ {
+  "id": "funding-banking-05",
+  "pillar": "funding-banking",
+  "question": "Startup India seed fund: who qualifies",
+  "target_keyword": "startup india seed fund scheme"
+ },
+ {
+  "id": "funding-banking-06",
+  "pillar": "funding-banking",
+  "question": "Angel tax in India: current rules for startups",
+  "target_keyword": "angel tax startup india"
+ },
+ {
+  "id": "funding-banking-07",
+  "pillar": "funding-banking",
+  "question": "How to prepare for investor due diligence",
+  "target_keyword": "financial due diligence startup"
+ },
+ {
+  "id": "funding-banking-08",
+  "pillar": "funding-banking",
+  "question": "Term loan vs working capital loan",
+  "target_keyword": "term loan vs working capital loan"
+ },
+ {
+  "id": "funding-banking-09",
+  "pillar": "funding-banking",
+  "question": "How to avoid your loan turning into an NPA",
+  "target_keyword": "avoid npa business loan"
+ },
+ {
+  "id": "funding-banking-10",
+  "pillar": "funding-banking",
+  "question": "Invoice discounting and TReDS for MSMEs",
+  "target_keyword": "treds invoice discounting"
+ },
+ {
+  "id": "funding-banking-11",
+  "pillar": "funding-banking",
+  "question": "Business credit score in India: how CIBIL MSME rank works",
+  "target_keyword": "cibil msme rank"
+ },
+ {
+  "id": "funding-banking-12",
+  "pillar": "funding-banking",
+  "question": "Venture debt for Indian startups: when it makes sense",
+  "target_keyword": "venture debt india"
+ },
+ {
+  "id": "funding-banking-13",
+  "pillar": "funding-banking",
+  "question": "How to build a financial model for fundraising",
+  "target_keyword": "startup financial model"
+ },
+ {
+  "id": "funding-banking-14",
+  "pillar": "funding-banking",
+  "question": "Equipment financing for manufacturers",
+  "target_keyword": "machinery loan for msme"
+ },
+ {
+  "id": "funding-banking-15",
+  "pillar": "funding-banking",
+  "question": "Mudra loan: limits, eligibility and process",
+  "target_keyword": "mudra loan eligibility"
+ },
+ {
+  "id": "industry-playbooks-01",
+  "pillar": "industry-playbooks",
+  "question": "Restaurant profit margin in India: what's normal and how to improve it",
+  "target_keyword": "restaurant profit margin india"
+ },
+ {
+  "id": "industry-playbooks-02",
+  "pillar": "industry-playbooks",
+  "question": "How to open a cloud kitchen: costs and break-even",
+  "target_keyword": "cloud kitchen cost india"
+ },
+ {
+  "id": "industry-playbooks-03",
+  "pillar": "industry-playbooks",
+  "question": "Manufacturing cost control: a CFO checklist",
+  "target_keyword": "manufacturing cost control"
+ },
+ {
+  "id": "industry-playbooks-04",
+  "pillar": "industry-playbooks",
+  "question": "Finance for D2C brands: marketplace fees and margins",
+  "target_keyword": "d2c brand margins india"
+ },
+ {
+  "id": "industry-playbooks-05",
+  "pillar": "industry-playbooks",
+  "question": "SaaS metrics for Indian startups: ARR, churn and burn",
+  "target_keyword": "saas metrics india"
+ },
+ {
+  "id": "industry-playbooks-06",
+  "pillar": "industry-playbooks",
+  "question": "Hotel and homestay accounting in Goa",
+  "target_keyword": "hotel accounting goa"
+ },
+ {
+  "id": "industry-playbooks-07",
+  "pillar": "industry-playbooks",
+  "question": "Clinic and hospital finance: managing receivables from insurers",
+  "target_keyword": "hospital receivables management"
+ },
+ {
+  "id": "industry-playbooks-08",
+  "pillar": "industry-playbooks",
+  "question": "Retail store inventory shrinkage: how to measure and reduce it",
+  "target_keyword": "inventory shrinkage retail"
+ },
+ {
+  "id": "industry-playbooks-09",
+  "pillar": "industry-playbooks",
+  "question": "Export business finance: forex, LUT and GST refunds",
+  "target_keyword": "export business finance india"
+ },
+ {
+  "id": "industry-playbooks-10",
+  "pillar": "industry-playbooks",
+  "question": "Real estate developer accounting under RERA",
+  "target_keyword": "rera accounting developers"
+ },
+ {
+  "id": "industry-playbooks-11",
+  "pillar": "industry-playbooks",
+  "question": "Finance for edtech and coaching institutes",
+  "target_keyword": "coaching institute accounting"
+ },
+ {
+  "id": "industry-playbooks-12",
+  "pillar": "industry-playbooks",
+  "question": "Logistics business margins and fuel cost control",
+  "target_keyword": "logistics business profit margin"
+ },
+ {
+  "id": "industry-playbooks-13",
+  "pillar": "industry-playbooks",
+  "question": "Agency and consulting firms: project profitability",
+  "target_keyword": "project profitability agency"
+ },
+ {
+  "id": "industry-playbooks-14",
+  "pillar": "industry-playbooks",
+  "question": "Franchise business finance: royalty, capex and payback",
+  "target_keyword": "franchise business india investment"
+ },
+ {
+  "id": "industry-playbooks-15",
+  "pillar": "industry-playbooks",
+  "question": "Pharma distribution: managing credit and expiry losses",
+  "target_keyword": "pharma distribution working capital"
+ },
+ {
+  "id": "tax-planning-01",
+  "pillar": "tax-planning",
+  "question": "Advance tax for businesses: dates, calculation and penalties",
+  "target_keyword": "advance tax due dates"
+ },
+ {
+  "id": "tax-planning-02",
+  "pillar": "tax-planning",
+  "question": "Presumptive taxation under 44AD and 44ADA: who should use it?",
+  "target_keyword": "section 44ad 44ada"
+ },
+ {
+  "id": "tax-planning-03",
+  "pillar": "tax-planning",
+  "question": "Old vs new tax regime for founders and directors",
+  "target_keyword": "old vs new tax regime"
+ },
+ {
+  "id": "tax-planning-04",
+  "pillar": "tax-planning",
+  "question": "Salary vs dividend: how founders should pay themselves",
+  "target_keyword": "salary vs dividend founder"
+ },
+ {
+  "id": "tax-planning-05",
+  "pillar": "tax-planning",
+  "question": "Tax audit under Section 44AB: limits and deadlines",
+  "target_keyword": "tax audit 44ab limit"
+ },
+ {
+  "id": "tax-planning-06",
+  "pillar": "tax-planning",
+  "question": "How to save tax legally as a small business owner",
+  "target_keyword": "tax saving for business owners"
+ },
+ {
+  "id": "tax-planning-07",
+  "pillar": "tax-planning",
+  "question": "Depreciation rates under the Income Tax Act",
+  "target_keyword": "depreciation rates income tax"
+ },
+ {
+  "id": "tax-planning-08",
+  "pillar": "tax-planning",
+  "question": "Section 80C and beyond: tax planning for entrepreneurs",
+  "target_keyword": "tax planning for entrepreneurs"
+ },
+ {
+  "id": "tax-planning-09",
+  "pillar": "tax-planning",
+  "question": "Capital gains on selling business shares",
+  "target_keyword": "capital gains on unlisted shares"
+ },
+ {
+  "id": "tax-planning-10",
+  "pillar": "tax-planning",
+  "question": "ITR filing for freelancers and consultants",
+  "target_keyword": "itr for freelancers"
+ },
+ {
+  "id": "tax-planning-11",
+  "pillar": "tax-planning",
+  "question": "Startup tax exemption under Section 80-IAC",
+  "target_keyword": "section 80 iac"
+ },
+ {
+  "id": "tax-planning-12",
+  "pillar": "tax-planning",
+  "question": "LLP vs private limited company for tax",
+  "target_keyword": "llp vs private limited tax"
+ },
+ {
+  "id": "tax-planning-13",
+  "pillar": "tax-planning",
+  "question": "TDS on rent under Section 194I",
+  "target_keyword": "tds on rent 194i"
+ },
+ {
+  "id": "tax-planning-14",
+  "pillar": "tax-planning",
+  "question": "Income tax notice for mismatch in AIS: how to respond",
+  "target_keyword": "ais mismatch notice"
+ },
+ {
+  "id": "tax-planning-15",
+  "pillar": "tax-planning",
+  "question": "Tax planning before 31 March: a checklist",
+  "target_keyword": "year end tax planning checklist"
+ },
+ {
+  "id": "business-growth-01",
+  "pillar": "business-growth",
+  "question": "How to scale a business from ₹1 crore to ₹10 crore",
+  "target_keyword": "scale business 1 crore to 10 crore"
+ },
+ {
+  "id": "business-growth-02",
+  "pillar": "business-growth",
+  "question": "Financial planning for small businesses: a 4-step guide",
+  "target_keyword": "financial planning for small business"
+ },
+ {
+  "id": "business-growth-03",
+  "pillar": "business-growth",
+  "question": "How to set up an MIS dashboard for your business",
+  "target_keyword": "mis dashboard for business"
+ },
+ {
+  "id": "business-growth-04",
+  "pillar": "business-growth",
+  "question": "When to expand to a second location",
+  "target_keyword": "business expansion planning"
+ },
+ {
+  "id": "business-growth-05",
+  "pillar": "business-growth",
+  "question": "Succession planning for family businesses in India",
+  "target_keyword": "succession planning family business"
+ },
+ {
+  "id": "business-growth-06",
+  "pillar": "business-growth",
+  "question": "How to value your business",
+  "target_keyword": "business valuation india"
+ },
+ {
+  "id": "business-growth-07",
+  "pillar": "business-growth",
+  "question": "Hiring your first finance team member",
+  "target_keyword": "hire accountant for small business"
+ },
+ {
+  "id": "business-growth-08",
+  "pillar": "business-growth",
+  "question": "Internal controls that stop fraud in small businesses",
+  "target_keyword": "internal controls small business"
+ },
+ {
+  "id": "business-growth-09",
+  "pillar": "business-growth",
+  "question": "How AI is changing accounting for SMEs",
+  "target_keyword": "ai in accounting sme"
+ },
+ {
+  "id": "business-growth-10",
+  "pillar": "business-growth",
+  "question": "Choosing accounting software: Tally vs Zoho Books",
+  "target_keyword": "tally vs zoho books"
+ },
+ {
+  "id": "business-growth-11",
+  "pillar": "business-growth",
+  "question": "Budget vs actual analysis: how to run it monthly",
+  "target_keyword": "budget vs actual analysis"
+ },
+ {
+  "id": "business-growth-12",
+  "pillar": "business-growth",
+  "question": "How to prepare for an acquisition offer",
+  "target_keyword": "selling a business india"
+ },
+ {
+  "id": "business-growth-13",
+  "pillar": "business-growth",
+  "question": "ESOPs for startups: costs and accounting",
+  "target_keyword": "esop accounting india"
+ },
+ {
+  "id": "business-growth-14",
+  "pillar": "business-growth",
+  "question": "Building a board pack for investors",
+  "target_keyword": "board meeting financial report"
+ },
+ {
+  "id": "business-growth-15",
+  "pillar": "business-growth",
+  "question": "Exit planning for founders",
+  "target_keyword": "founder exit planning"
+ }
+]

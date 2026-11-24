@@ -83,6 +83,20 @@ scripts/scrape_blogs.sh /tmp/scrape
 cp /tmp/scrape/posts.json analysis/data/all_posts_metadata.json
 ```
 
+## Daily automation (no API key)
+
+A scheduled Claude Code session follows [`automation/DAILY_RUN.md`](automation/DAILY_RUN.md) every
+morning. It:
+- picks 10 topics (Google Trends first, then the evergreen backlog in `data/backlog.json`),
+- researches and writes each post,
+- runs the checks,
+- schedules each passing post on WordPress between 11:00 and 20:00 IST, at least 4 hours after
+  the run, which leaves a review window,
+- emails a digest with edit links.
+
+The WordPress login is an application password saved as a network secret on the cloud
+environment. To run the scripts elsewhere, set `WP_USER` and `WP_APP_PASSWORD`.
+
 ## Configuration
 Everything is in `blog_automation/config.py`:
 - model (`claude-opus-5-5`)

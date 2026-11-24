@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
 OUTPUT_DIR = ROOT / "output"
 POST_INVENTORY = ROOT / "analysis" / "data" / "all_posts_metadata.json"
+BACKLOG = ROOT / "data" / "backlog.json"
 
 MODEL = "claude-opus-5-5"
 # Server-side refusal fallback (routes a declined request to another model).
@@ -70,3 +71,14 @@ BANNED_PHRASES = [
     "the question is not whether you can afford us",
     "let me leave you with this",
 ]
+
+# WordPress category IDs on 21degrees.in (Finance=1, Career=2, Tech=8, Virtual CFO=26).
+# Existing categories are reused; no new categories are created.
+CATEGORY_IDS = {
+    "default": [1, 26],
+    "business-growth": [1, 26, 2],
+}
+
+# Daily schedule: posts go live spread between these hours (IST), each at least
+# min_review_hours after the run that created it, so there is time to review.
+SCHEDULE = {"posts_per_day": 10, "first_hour_ist": 11, "last_hour_ist": 20, "min_review_hours": 4}

@@ -137,3 +137,14 @@ def test_sdk_request_shape(monkeypatch):
     assert b["model"] == "claude-opus-5-5" and b["fallbacks"] == "default" and b["stream"] is True
     assert b["output_config"]["effort"] == "medium" and b["output_config"]["format"]["type"] == "json_schema"
     assert "server-side-fallback-2026-07-01" in captured["beta"]
+
+
+def test_slots_respect_window_and_review_time():
+    from datetime import datetime
+    from blog_automation import publisher, wordpress as wp
+    morning = publisher.next_slots(10, datetime(2026, 11, 25, 6, 0, tzinfo=wp.IST))
+    assert morning[0].hour == 11 and morning[-1].hour == 20 and len(morning) == 10
+    noon = publisher.next_slots(10, datetime(2026, 11, 25, 9, 30, tzinfo=wp.IST))
+    assert noon[0] >= datetime(2026, 11, 25, 13, 30, tzinfo=wp.IST) and noon[-1].hour == 20
+    night = publisher.next_slots(10, datetime(2026, 11, 25, 22, 0, tzinfo=wp.IST))
+    assert night[0].day == 26 and night[0].hour == 11

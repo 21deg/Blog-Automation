@@ -149,13 +149,29 @@ def generate(topic: dict, max_revisions: int = 2, log=print) -> dict:
         post = revise(post, failed, inventory, sources)
         checks = validate.run(post, render.to_markdown(post), set(sources), inventory_urls)
 
+    return save(post, notes, sources, checks, log=log)
+
+
+def save(post: BlogPost, notes: str, sources: dict[str, str], checks, log=print) -> dict:
     OUTPUT_DIR.mkdir(exist_ok=True)
     folder = OUTPUT_DIR / f"{datetime.now():%Y%m%d}-{post.slug}"
     folder.mkdir(exist_ok=True)
     (folder / "post.md").write_text(render.to_markdown(post, front_matter=True))
     (folder / "post.html").write_text(render.to_html(post))
     (folder / "post.json").write_text(post.model_dump_json(indent=1))
+    (folder / "sources.json").write_text(json.dumps(sources, ensure_ascii=False, indent=1))
     (folder / "research.md").write_text(notes + "\n\n## Sources\n" + "\n".join(f"- [{t}]({u})" for u, t in sources.items()))
     (folder / "checks.txt").write_text(validate.report(checks) + "\n")
     log(validate.report(checks))
     return {"folder": str(folder), "passed": not validate.failures(checks), "checks": [c.__dict__ for c in checks]}
+
+
+def finalize(post_path: str, sources_path: str, research_path: str | None = None, log=print) -> dict:
+    """Validate and render a post written outside the API (for example by Claude in a Claude Code
+    session). sources_path is a JSON object {url: title} of every source found during research."""
+    post = BlogPost.model_validate_json(open(post_path).read())
+    sources = json.loads(open(sources_path).read())
+    notes = open(research_path).read() if research_path else ""
+    _, inventory_urls = link_inventory()
+    checks = validate.run(post, render.to_markdown(post), set(sources), inventory_urls)
+    return save(post, notes, sources, checks, log=log)
