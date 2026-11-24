@@ -60,7 +60,8 @@ def attach_image(post_id: int, folder: Path) -> dict:
         media = wp.upload_media((folder / "featured.jpg").read_bytes(), f"{post.slug}.jpg", "image/jpeg",
                                 alt_text=post.image_alt, title=post.h1)
         wp.set_featured_image(post_id, media["id"])
-        return {"engine": meta["engine"], "media_id": media["id"], "url": media["url"]}
+        return {"engine": meta["engine"], "media_id": media["id"], "url": media["url"],
+                "prompt": meta.get("prompt", "")}
     except Exception as e:  # noqa: BLE001 - an image problem must not stop the post
         return {"engine": "none", "error": str(e)[:200]}
 
@@ -123,7 +124,9 @@ def digest(day: datetime | None = None) -> tuple[str, str]:
                   f"   Preview: {e['link']}"]
         img = e.get("image") or {}
         if img.get("engine") == "branded-card":
-            lines.append("   Image: branded title card (add an illustration if you like)")
+            lines.append("   Image: branded title card. For an illustration, paste this into the free Gemini app or ChatGPT,")
+            lines.append("   then replace the featured image in WordPress:")
+            lines.append(f"   {img.get('prompt', '')}")
         elif img.get("engine") == "none":
             lines.append(f"   Image: MISSING, add one before it goes live ({img.get('error', '')[:80]})")
         lines += [f"   Check: {w}" for w in e.get("warnings", [])]

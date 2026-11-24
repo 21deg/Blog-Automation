@@ -86,7 +86,7 @@ SCHEDULE = {"posts_per_day": 10, "first_hour_ist": 11, "last_hour_ist": 20, "min
 # Featured images. engine: "auto" tries Nano Banana (needs a Google AI Studio key with billing,
 # about $0.034 per image) and falls back to a free branded title card; "card" never calls the API.
 IMAGES = {
-    "engine": "auto",
+    "engine": "card",  # free; set to "auto" with GEMINI_API_KEY to use Nano Banana
     "model": "gemini-nano-banana-2.1",
     "aspect_ratio": "3:2",
     "image_size": "1K",
