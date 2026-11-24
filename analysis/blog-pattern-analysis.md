@@ -124,7 +124,7 @@ Keep the hook and the voice. Fix the structure so the same post ranks on Google 
    - **(a) search volume**
    - **(b) a credible bridge to SME finance.** Policy, tax, RBI or market news gives a direct bridge. Sport or celebrity gives a metaphor only.
    - **(c) evergreen keyword pairing**
-3. Prefer **"direct" trends** (Supreme Court GST ruling, RBI policy, budget, ITR deadline, GST rate change). They rank for long-tail *informational* queries that keep traffic after the news cycle. Cap metaphor newsjacks (cricket, celebrity) at about 1 in 4 posts.
+3. Score **both kinds of trend**. "Direct" trends (Supreme Court GST ruling, RBI policy, budget, ITR deadline, GST rate change) get a small boost (1.15×) because they also rank for long-tail queries after the news cycle. Sport, celebrity and culture metaphors (IPL, cricket, film, politics) are scored at full weight (1.0×) because they reliably drive traffic for this blog. Neither is capped. The weights live in `blog_automation/config.py` (`ANGLE_WEIGHTS`).
 4. Map every post to one **pillar cluster**: Virtual CFO (pricing / when to hire / vs CA) · GST & compliance · Cash flow & working capital · Funding & banking · Industry playbooks (restaurants, manufacturing, D2C, SaaS) · Tax planning.
 
 ### 4.2 Title and URL
