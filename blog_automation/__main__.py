@@ -26,6 +26,16 @@ from .config import DEFAULT_GEO
 
 
 def cmd_trends(args):
+    if args.by_category:
+        pools = trends.bucketed(trends.fetch_trending_now(args.geo), per_bucket=args.per_bucket)
+        if args.json:
+            print(json.dumps(pools, ensure_ascii=False, indent=1))
+            return
+        for b in trends.BUCKETS:
+            print(f"\n== {b['name']} (target {b['target']}) ==")
+            for i, t in enumerate(pools[b["name"]], 1):
+                print(f"{i:>2}. {t['volume']:>7,}+  {t['query']}  [{', '.join(t['categories'])}]  related: {', '.join(t['related'][:4])}")
+        return
     items = trends.fetch_trends(args.geo)
     for t in sorted(items, key=lambda t: t.traffic, reverse=True):
         print(f"{t.traffic_label:>8}  {t.query}")
@@ -80,9 +90,8 @@ def cmd_slots(args):
 
 
 def cmd_publish(args):
-    slots = publisher.next_slots(args.count)
-    at = slots[args.slot - 1]
-    e = publisher.publish_folder(args.folder, at, force=args.force, draft=args.draft)
+    at = publisher.next_slots(args.count)[args.slot - 1] if args.slot else publisher.next_free_slot(args.count)
+    e = publisher.publish_folder(args.folder, at, force=args.force, draft=args.draft, source=args.source)
     print(json.dumps(e, ensure_ascii=False, indent=1))
 
 
@@ -111,6 +120,10 @@ def cmd_image(args):
         print(json.dumps(publisher.attach_image(args.post_id, P(args.folder)), indent=1))
 
 
+def cmd_index(args):
+    print(json.dumps(publisher.index_today(), ensure_ascii=False, indent=1))
+
+
 def cmd_wp_check(args):
     print(json.dumps(wordpress.whoami(), indent=1))
 
@@ -119,7 +132,10 @@ def main(argv=None):
     p = argparse.ArgumentParser(prog="blog_automation")
     p.add_argument("--geo", default=DEFAULT_GEO, help="Google Trends country code (default IN)")
     sub = p.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("trends").set_defaults(func=cmd_trends)
+    tr = sub.add_parser("trends", help="today's Google Trends; --by-category for the daily buckets")
+    tr.add_argument("--by-category", action="store_true"); tr.add_argument("--json", action="store_true")
+    tr.add_argument("--per-bucket", type=int, default=15)
+    tr.set_defaults(func=cmd_trends)
     sub.add_parser("pick").set_defaults(func=cmd_pick)
     g = sub.add_parser("generate")
     g.add_argument("topics", help="topics-*.json written by `pick`")
@@ -139,12 +155,14 @@ def main(argv=None):
     b.set_defaults(func=cmd_backlog)
     s_ = sub.add_parser("slots"); s_.add_argument("--count", type=int, default=10); s_.set_defaults(func=cmd_slots)
     pb = sub.add_parser("publish")
-    pb.add_argument("folder"); pb.add_argument("--slot", type=int, required=True)
+    pb.add_argument("folder"); pb.add_argument("--slot", type=int, help="force a slot; default: next free slot")
+    pb.add_argument("--source", default="", help="e.g. trend:law-government, trend:entertainment-games, trend:rest, backlog")
     pb.add_argument("--count", type=int, default=10, help="total posts today (spreads the slots)")
     pb.add_argument("--force", action="store_true"); pb.add_argument("--draft", action="store_true")
     pb.set_defaults(func=cmd_publish)
     sub.add_parser("digest").set_defaults(func=cmd_digest)
     sub.add_parser("wp-check").set_defaults(func=cmd_wp_check)
+    sub.add_parser("index", help="submit today's live posts for indexing and check the sitemap").set_defaults(func=cmd_index)
     im = sub.add_parser("image", help="make the featured image; with --post-id also upload and attach it")
     im.add_argument("folder"); im.add_argument("--post-id", type=int)
     im.add_argument("--engine", choices=["auto", "nano-banana", "card", "card-only"], default=None)

@@ -185,8 +185,15 @@ def make_featured_image(post, folder: str, engine: str | None = None, log=print)
     out = Path(folder) / "featured.jpg"
     note = ""
     data = None
+    for name in ("featured-canva.jpg", "featured-canva.png", "featured-canva.webp"):
+        provided = Path(folder) / name
+        if data is None and provided.exists():
+            try:
+                data, used = _normalise(provided.read_bytes()), "canva"
+            except Exception as e:  # noqa: BLE001
+                note = f"Canva image unreadable: {e}"[:200]
     svg = Path(folder) / "featured.svg"
-    if svg.exists() and engine != "card-only":
+    if data is None and svg.exists() and engine != "card-only":
         try:
             data, used = render_svg(svg, out), "illustration"
         except Exception as e:  # noqa: BLE001

@@ -22,6 +22,13 @@ class FAQ(BaseModel):
     answer: str
 
 
+class InlineImage(BaseModel):
+    after_heading: str  # exact text of the section heading the image goes under
+    alt: str
+    caption: str
+    prompt: str  # what the image shows (scene, chart or diagram), for Canva or for drawing it
+
+
 class BlogPost(BaseModel):
     focus_keyword: str
     secondary_keywords: list[str]
@@ -39,6 +46,7 @@ class BlogPost(BaseModel):
     cta: str
     image_alt: str
     image_prompt: str
+    inline_images: list[InlineImage] = []
 
 
 def style_guide() -> str:
@@ -153,7 +161,10 @@ def generate(topic: dict, max_revisions: int = 2, log=print) -> dict:
     return save(post, notes, sources, checks, log=log)
 
 
-def save(post: BlogPost, notes: str, sources: dict[str, str], checks, log=print, svg_path: str | None = None) -> dict:
+def save(post: BlogPost, notes: str, sources: dict[str, str], checks, log=print, work_dir: str | None = None) -> dict:
+    """Write the post files to output/<date>-<slug>/. Image files in work_dir (featured.svg/.jpg/.png
+    and inline-N.*) are copied alongside."""
+    import shutil
     OUTPUT_DIR.mkdir(exist_ok=True)
     folder = OUTPUT_DIR / f"{datetime.now():%Y%m%d}-{post.slug}"
     folder.mkdir(exist_ok=True)
@@ -163,8 +174,11 @@ def save(post: BlogPost, notes: str, sources: dict[str, str], checks, log=print,
     (folder / "sources.json").write_text(json.dumps(sources, ensure_ascii=False, indent=1))
     (folder / "research.md").write_text(notes + "\n\n## Sources\n" + "\n".join(f"- [{t}]({u})" for u, t in sources.items()))
     (folder / "checks.txt").write_text(validate.report(checks) + "\n")
-    if svg_path and Path(svg_path).exists():
-        (folder / "featured.svg").write_text(Path(svg_path).read_text())
+    if work_dir:
+        src = Path(work_dir)
+        for pattern in ("featured.svg", "featured-canva.*", "inline-*"):
+            for f in src.glob(pattern):
+                shutil.copy(f, folder / f.name)
     log(validate.report(checks))
     return {"folder": str(folder), "passed": not validate.failures(checks), "checks": [c.__dict__ for c in checks]}
 
@@ -177,5 +191,6 @@ def finalize(post_path: str, sources_path: str, research_path: str | None = None
     notes = open(research_path).read() if research_path else ""
     _, inventory_urls = link_inventory()
     checks = validate.run(post, render.to_markdown(post), set(sources), inventory_urls)
-    svg = Path(post_path).with_name("featured.svg")
-    return save(post, notes, sources, checks, log=log, svg_path=str(svg) if svg.exists() else None)
+    work = Path(post_path).parent
+    checks += validate.image_checks(post, work)
+    return save(post, notes, sources, checks, log=log, work_dir=str(work))

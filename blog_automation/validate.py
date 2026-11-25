@@ -101,3 +101,25 @@ def failures(checks: list[Check], hard_only: bool = True) -> list[Check]:
 
 def report(checks: list[Check]) -> str:
     return "\n".join(f"{'PASS' if c.ok else ('FAIL' if c.hard else 'WARN')}  {c.name}: {c.detail}" for c in checks)
+
+
+INLINE_EXT = (".jpg", ".jpeg", ".png", ".webp", ".svg")
+
+
+def image_checks(post, work_dir) -> list[Check]:
+    """At least 2 contextual in-article images, each with a file, alt text and a real heading."""
+    from pathlib import Path
+    work_dir = Path(work_dir)
+    out = []
+    n = len(post.inline_images)
+    out.append(Check("inline_images", n >= 2, f"{n} in-article images (need at least 2)"))
+    headings = {s.heading.strip().lower() for s in post.sections}
+    missing, bad_heading = [], []
+    for i, img in enumerate(post.inline_images, 1):
+        if not any((work_dir / f"inline-{i}{ext}").exists() for ext in INLINE_EXT):
+            missing.append(i)
+        if img.after_heading.strip().lower() not in headings:
+            bad_heading.append(img.after_heading)
+    out.append(Check("inline_image_files", not missing, "all image files present" if not missing else f"missing inline-N file for: {missing}"))
+    out.append(Check("inline_image_placement", not bad_heading, "every image sits under a real section" if not bad_heading else f"unknown headings: {bad_heading}"))
+    return out

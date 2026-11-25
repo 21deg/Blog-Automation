@@ -19,7 +19,73 @@ def _load(path: Path, default):
     return json.loads(path.read_text()) if path.exists() else default
 
 
-def publish_folder(folder: str, publish_at: datetime | None, force: bool = False, draft: bool = False) -> dict:
+def _inline_file(folder: Path, i: int):
+    for ext in (".jpg", ".jpeg", ".png", ".webp", ".svg"):
+        f = folder / f"inline-{i}{ext}"
+        if f.exists():
+            return f
+    return None
+
+
+def insert_inline_images(html_text: str, post: dict, folder: Path, log=print) -> tuple[str, list]:
+    """Upload each inline image and place it under its section heading, after the first paragraph.
+    An image that fails is skipped (and reported) rather than blocking the post."""
+    import html as htmlmod
+    import re
+    from . import images
+    placed = []
+    for i, img in enumerate(post.get("inline_images") or [], 1):
+        f = _inline_file(folder, i)
+        if not f:
+            placed.append({"n": i, "error": "file missing"})
+            continue
+        try:
+            if f.suffix == ".svg":
+                data = images.render_svg(f, folder / f"inline-{i}.rendered.jpg")
+            else:
+                data = images._normalise(f.read_bytes())
+            media = wp.upload_media(data, f"{post['slug']}-{i}.jpg", "image/jpeg", alt_text=img["alt"], title=img["caption"])
+            figure = (f'<figure class="wp-block-image size-large"><img src="{media["url"]}" alt="{htmlmod.escape(img["alt"], quote=True)}" '
+                      f'class="wp-image-{media["id"]}" loading="lazy" width="1536" height="1024"/>'
+                      f'<figcaption>{htmlmod.escape(img["caption"])}</figcaption></figure>')
+            heading = re.escape(htmlmod.escape(img["after_heading"].strip(), quote=False))
+            m = re.search(rf"<h2[^>]*>\s*{heading}\s*</h2>", html_text, re.I)
+            if not m:
+                m = re.search(rf"<h2[^>]*>\s*{re.escape(img['after_heading'].strip())}\s*</h2>", html_text, re.I)
+            if not m:
+                placed.append({"n": i, "error": f"heading not found: {img['after_heading']}"})
+                continue
+            p_end = html_text.find("</p>", m.end())
+            nxt = html_text.find("<h2", m.end())
+            pos = p_end + 4 if p_end != -1 and (nxt == -1 or p_end < nxt) else m.end()
+            html_text = html_text[:pos] + "\n" + figure + "\n" + html_text[pos:]
+            placed.append({"n": i, "media_id": media["id"], "url": media["url"]})
+        except Exception as e:  # noqa: BLE001
+            placed.append({"n": i, "error": str(e)[:150]})
+    return html_text, placed
+
+
+def next_free_slot(count: int = 10) -> datetime:
+    """The earliest of today's slots that no scheduled or published post already occupies
+    (posts within 20 minutes of a slot count as occupying it). Fixes double-booked times."""
+    slots = next_slots(count)
+    wp.list_posts.cache_clear()
+    taken = []
+    for p in wp.list_posts("publish,future"):
+        try:
+            taken.append(datetime.fromisoformat(p["date"]).replace(tzinfo=wp.IST))
+        except ValueError:
+            continue
+    for s in slots:
+        if all(abs((s - t).total_seconds()) > 20 * 60 for t in taken):
+            return s
+    # every slot used (more than `count` posts today): go 20 minutes after the latest one
+    from datetime import timedelta
+    return max(taken) + timedelta(minutes=20)
+
+
+def publish_folder(folder: str, publish_at: datetime | None, force: bool = False, draft: bool = False,
+                   source: str = "") -> dict:
     folder_p = Path(folder)
     post = json.loads((folder_p / "post.json").read_text())
     checks = (folder_p / "checks.txt").read_text()
@@ -29,8 +95,9 @@ def publish_folder(folder: str, publish_at: datetime | None, force: bool = False
     clash = [p for p in existing if p["slug"] == post["slug"]]
     if clash:
         raise SystemExit(f"A post with slug '{post['slug']}' already exists: {clash[0]['link']}")
+    content, inline = insert_inline_images((folder_p / "post.html").read_text(), post, folder_p)
     created = wp.create_post(
-        title=post["h1"], content=(folder_p / "post.html").read_text(), slug=post["slug"],
+        title=post["h1"], content=content, slug=post["slug"],
         excerpt=post["meta_description"], categories=CATEGORY_IDS.get(post["pillar"], CATEGORY_IDS["default"]),
         publish_at=None if draft else publish_at, status="draft" if draft else None)
     wp.set_seo(created["id"], title_tag=post["title_tag"], meta_description=post["meta_description"],
@@ -38,7 +105,7 @@ def publish_folder(folder: str, publish_at: datetime | None, force: bool = False
     image = attach_image(created["id"], folder_p)
     entry = {**created, "title": post["h1"], "title_tag": post["title_tag"], "folder": str(folder_p),
              "publish_at_ist": publish_at.astimezone(wp.IST).strftime("%d %b %Y, %I:%M %p IST") if publish_at and not draft else "draft",
-             "image": image,
+             "image": image, "inline_images": inline, "source": source,
              "warnings": [l for l in checks.splitlines() if l.startswith(("WARN", "FAIL"))]}
     log_path = daily_log_path(datetime.now(wp.IST))
     log = _load(log_path, [])
@@ -117,10 +184,14 @@ def digest(day: datetime | None = None) -> tuple[str, str]:
     day = day or datetime.now(wp.IST)
     log = _load(daily_log_path(day), [])
     subject = f"21DEGREES blog: {len(log)} posts scheduled for {day:%d %b}"
-    lines = [f"{len(log)} posts are scheduled to go live today. Review each one before its publish time.",
+    trend_n = sum(1 for e in log if str(e.get("source", "")).startswith("trend"))
+    backlog_n = sum(1 for e in log if str(e.get("source", "")).startswith("backlog"))
+    lines = [f"Sources: {trend_n} from Google Trends, {backlog_n} from the evergreen backlog.",
+             f"{len(log)} posts are scheduled to go live today. Review each one before its publish time.",
              "To stop a post, open it and switch it to Draft, or move it to Trash.", ""]
     for i, e in enumerate(log, 1):
-        lines += [f"{i}. {e['title']}", f"   Goes live: {e['publish_at_ist']}", f"   Edit: {e['edit_link']}",
+        lines += [f"{i}. {e['title']}", f"   Source: {e.get('source') or 'unknown'}",
+                  f"   Goes live: {e['publish_at_ist']}", f"   Edit: {e['edit_link']}",
                   f"   Preview: {e['link']}"]
         img = e.get("image") or {}
         if img.get("engine") == "branded-card":
@@ -129,7 +200,25 @@ def digest(day: datetime | None = None) -> tuple[str, str]:
             lines.append(f"   {img.get('prompt', '')}")
         elif img.get("engine") == "none":
             lines.append(f"   Image: MISSING, add one before it goes live ({img.get('error', '')[:80]})")
+        bad_inline = [x for x in e.get("inline_images", []) if x.get("error")]
+        ok_inline = len(e.get("inline_images", [])) - len(bad_inline)
+        lines.append(f"   In-article images: {ok_inline} placed" + (f", {len(bad_inline)} failed" if bad_inline else ""))
         lines += [f"   Check: {w}" for w in e.get("warnings", [])]
         lines.append("")
     lines.append("Indexing: Rank Math submits each post to Bing and IndexNow when it goes live; Google picks it up from the sitemap.")
     return subject, "\n".join(lines)
+
+
+def index_today(day: datetime | None = None) -> dict:
+    """Submit every post that went live today to IndexNow (Bing, Yandex and others, via Rank Math)
+    and check each one is in the sitemap Google reads."""
+    import urllib.request
+    day = (day or datetime.now(wp.IST)).astimezone(wp.IST)
+    wp.list_posts.cache_clear()
+    live = [p for p in wp.list_posts("publish") if p["date"][:10] == day.strftime("%Y-%m-%d")]
+    urls = [p["link"] for p in live]
+    result = wp.submit_for_indexing(urls) if urls else {"message": "nothing published today"}
+    req = urllib.request.Request("https://21degrees.in/post-sitemap.xml", headers={"User-Agent": "Mozilla/5.0"})
+    sitemap = urllib.request.urlopen(req, timeout=60).read().decode(errors="ignore")
+    missing = [u for u in urls if u not in sitemap]
+    return {"submitted": urls, "indexnow": result, "missing_from_sitemap": missing}

@@ -158,3 +158,16 @@ def test_svg_safety_checks():
                 '<svg><rect></svg>']:
         with pytest.raises(Exception):
             images.check_svg(bad)
+
+
+def test_inline_images_inserted_under_heading(monkeypatch, tmp_path):
+    from blog_automation import publisher, wordpress as wp
+    from PIL import Image
+    Image.new("RGB", (800, 600), "white").save(tmp_path / "inline-1.jpg")
+    monkeypatch.setattr(wp, "upload_media", lambda *a, **k: {"id": 77, "url": "https://21degrees.in/x.jpg"})
+    html = "<h2>What happened?</h2>\n<p>First para.</p>\n<p>Second.</p>\n<h2>Next</h2><p>x</p>"
+    post = {"slug": "s", "inline_images": [{"after_heading": "What happened?", "alt": "a", "caption": "c", "prompt": "p"},
+                                           {"after_heading": "Next", "alt": "a", "caption": "c", "prompt": "p"}]}
+    out, placed = publisher.insert_inline_images(html, post, tmp_path)
+    assert out.index("<figure") > out.index("First para.</p>") and out.index("<figure") < out.index("Second.")
+    assert placed[0]["media_id"] == 77 and "error" in placed[1]  # second file missing -> reported, not fatal
