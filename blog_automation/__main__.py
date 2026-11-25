@@ -125,6 +125,10 @@ def cmd_index(args):
     print(json.dumps(publisher.index_today(), ensure_ascii=False, indent=1))
 
 
+def cmd_quota(args):
+    print(json.dumps(publisher.quota(args.target), ensure_ascii=False, indent=1))
+
+
 def cmd_wp_check(args):
     print(json.dumps(wordpress.whoami(), indent=1))
 
@@ -165,6 +169,8 @@ def main(argv=None):
     pb.set_defaults(func=cmd_publish)
     sub.add_parser("digest").set_defaults(func=cmd_digest)
     sub.add_parser("wp-check").set_defaults(func=cmd_wp_check)
+    qu = sub.add_parser("quota", help="posts still needed for the publishing day"); qu.add_argument("--target", type=int, default=10)
+    qu.set_defaults(func=cmd_quota)
     sub.add_parser("index", help="submit today's live posts for indexing and check the sitemap").set_defaults(func=cmd_index)
     im = sub.add_parser("image", help="make the featured image; with --post-id also upload and attach it")
     im.add_argument("folder"); im.add_argument("--post-id", type=int)

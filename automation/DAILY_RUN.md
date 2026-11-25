@@ -25,7 +25,15 @@ python -m blog_automation wp-check
 ```
 If `wp-check` fails, retry once after a minute. If it still fails, skip to step 6 and report it.
 
-## 2. Pick 10 topics from Google Trends (always)
+Then check how many posts the day still needs:
+```bash
+python -m blog_automation quota
+```
+Posts already scheduled for that day (for example from a manual run the evening before) count
+towards the 10. Write only `to_write` posts, keeping the bucket mix in proportion. If `to_write`
+is 0, skip to step 6 and report that the day is already full.
+
+## 2. Pick topics from Google Trends (always)
 ```bash
 mkdir -p work && python -m blog_automation trends --by-category --per-bucket 25 --json > work/trends.json
 ```
