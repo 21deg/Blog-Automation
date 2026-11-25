@@ -27,6 +27,7 @@ class InlineImage(BaseModel):
     alt: str
     caption: str
     prompt: str  # what the image shows (scene, chart or diagram), for Canva or for drawing it
+    search_query: str = ""  # 2-4 plain English words for a stock-photo search if the image can't be made
 
 
 class BlogPost(BaseModel):

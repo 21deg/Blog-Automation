@@ -99,10 +99,18 @@ image:
 3. `export-design` as `{"type": "jpg", "quality": 90, "width": 1536}` and download the URL with
    curl to `work/<n>/featured-canva.jpg` (featured) or `work/<n>/inline-<i>.jpg` (in-article).
 
+Give every in-article image a `search_query` (2–4 plain English words, for example "supreme court
+india" or "cricket stadium"). If an image can't be made, `publish` uses it to find a backup.
+
 **If Canva is unavailable or fails** (no tools, quota used up, or an error), draw SVG instead,
 following `blog_automation/prompts/illustration_guide.md`: `work/<n>/featured.svg` and
 `work/<n>/inline-<i>.svg`. Charts, checklists and diagrams are always drawn as SVG. Then render
 and look once: `python -m blog_automation image <output folder>`.
+
+**Never hold a post back for images.** If a post ends up with fewer than 2 in-article images, or
+an image file is missing, publish it anyway: `publish` fills each gap automatically, first with
+a free commercial-use photo from Openverse (credited in the caption), then with a branded
+key-point card. The digest lists every backup used.
 
 ## 5. Schedule and index
 For each passed post, as soon as it passes:

@@ -112,7 +112,8 @@ def image_checks(post, work_dir) -> list[Check]:
     work_dir = Path(work_dir)
     out = []
     n = len(post.inline_images)
-    out.append(Check("inline_images", n >= 2, f"{n} in-article images (need at least 2)"))
+    # Soft checks: publish fills any gap with a backup image (Openverse photo or key-point card).
+    out.append(Check("inline_images", n >= 2, f"{n} in-article images planned (2+ wanted; publish adds backups)", hard=False))
     headings = {s.heading.strip().lower() for s in post.sections}
     missing, bad_heading = [], []
     for i, img in enumerate(post.inline_images, 1):
@@ -120,6 +121,6 @@ def image_checks(post, work_dir) -> list[Check]:
             missing.append(i)
         if img.after_heading.strip().lower() not in headings:
             bad_heading.append(img.after_heading)
-    out.append(Check("inline_image_files", not missing, "all image files present" if not missing else f"missing inline-N file for: {missing}"))
-    out.append(Check("inline_image_placement", not bad_heading, "every image sits under a real section" if not bad_heading else f"unknown headings: {bad_heading}"))
+    out.append(Check("inline_image_files", not missing, "all image files present" if not missing else f"missing inline-N file for: {missing} (publish adds backups)", hard=False))
+    out.append(Check("inline_image_placement", not bad_heading, "every image sits under a real section" if not bad_heading else f"unknown headings: {bad_heading} (publish re-places them)", hard=False))
     return out

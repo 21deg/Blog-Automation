@@ -171,3 +171,15 @@ def test_inline_images_inserted_under_heading(monkeypatch, tmp_path):
     out, placed = publisher.insert_inline_images(html, post, tmp_path)
     assert out.index("<figure") > out.index("First para.</p>") and out.index("<figure") < out.index("Second.")
     assert placed[0]["media_id"] == 77 and "error" in placed[1]  # second file missing -> reported, not fatal
+
+
+def test_ensure_inline_images_fills_gaps(monkeypatch, tmp_path):
+    from blog_automation import publisher, images
+    monkeypatch.setattr(images, "openverse_search", lambda q, n=8: [])  # offline: force the card backup
+    post = {"slug": "s", "h1": "H", "quick_answer": "Short answer.", "focus_keyword": "gst",
+            "sections": [{"heading": "A?"}, {"heading": "B?"}, {"heading": "C"}],
+            "faqs": [{"question": "Q1?", "answer": "A1."}], "inline_images": []}
+    out = publisher.ensure_inline_images(post, tmp_path)
+    assert len(out["inline_images"]) == 2
+    assert (tmp_path / "inline-1.jpg").exists() and (tmp_path / "inline-2.jpg").exists()
+    assert {e["backup"] for e in out["inline_images"]} == {"key-point-card"}

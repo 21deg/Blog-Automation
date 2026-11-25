@@ -27,6 +27,59 @@ def _inline_file(folder: Path, i: int):
     return None
 
 
+def ensure_inline_images(post: dict, folder: Path, minimum: int = 2, log=print) -> dict:
+    """Guarantee at least `minimum` in-article images. Missing entries are added under section
+    headings that have none; missing files are filled from Openverse (free, commercial-use photos,
+    credited in the caption) and, failing that, a branded key-point card. Never raises."""
+    from . import images
+    post = dict(post)
+    entries = [dict(e) for e in (post.get("inline_images") or [])]
+    headings = [s["heading"] for s in post.get("sections", [])]
+    # re-place entries whose heading doesn't exist
+    for e in entries:
+        if e.get("after_heading", "").strip().lower() not in {h.strip().lower() for h in headings}:
+            used = {x["after_heading"] for x in entries}
+            e["after_heading"] = next((h for h in headings if h not in used), headings[0] if headings else "")
+    while len(entries) < minimum and headings:
+        used = {x["after_heading"] for x in entries}
+        h = next((h for h in headings[1:] + headings[:1] if h not in used), headings[0])
+        entries.append({"after_heading": h, "alt": f"Illustration for: {h}", "caption": h, "prompt": "",
+                        "search_query": post.get("focus_keyword", "")})
+    faqs = post.get("faqs") or []
+    for i, e in enumerate(entries, 1):
+        if _inline_file(folder, i):
+            continue
+        made = False
+        queries = [q for q in (e.get("search_query"), post.get("focus_keyword"), "india business office") if q]
+        for q in queries:
+            try:
+                for cand in images.openverse_search(q):
+                    try:
+                        data = images._normalise(images.download_image(cand["url"]))
+                    except Exception:  # noqa: BLE001
+                        continue
+                    (folder / f"inline-{i}.jpg").write_bytes(data)
+                    e["caption"] = f"{e.get('caption', '').rstrip('.')}. {cand['credit']} via Openverse".strip(". ")
+                    e["alt"] = e.get("alt") or cand["title"]
+                    e["backup"] = "openverse"
+                    made = True
+                    break
+            except Exception as ex:  # noqa: BLE001
+                log(f"  Openverse search failed for '{q}': {ex}")
+            if made:
+                break
+        if not made:
+            if i - 1 < len(faqs):
+                label, text = "Quick answer", f"{faqs[i - 1]['question']} {faqs[i - 1]['answer']}"
+            else:
+                label, text = "Key takeaway", post.get("quick_answer", post.get("h1", ""))
+            (folder / f"inline-{i}.jpg").write_bytes(images.key_point_card(label, text))
+            e["alt"] = e.get("alt") or f"{label}: {text[:100]}"
+            e["backup"] = "key-point-card"
+    post["inline_images"] = entries
+    return post
+
+
 def insert_inline_images(html_text: str, post: dict, folder: Path, log=print) -> tuple[str, list]:
     """Upload each inline image and place it under its section heading, after the first paragraph.
     An image that fails is skipped (and reported) rather than blocking the post."""
@@ -65,10 +118,10 @@ def insert_inline_images(html_text: str, post: dict, folder: Path, log=print) ->
     return html_text, placed
 
 
-def next_free_slot(count: int = 10) -> datetime:
+def next_free_slot(count: int = 10, review_hours: float | None = None, last_hour: int | None = None) -> datetime:
     """The earliest of today's slots that no scheduled or published post already occupies
     (posts within 20 minutes of a slot count as occupying it). Fixes double-booked times."""
-    slots = next_slots(count)
+    slots = next_slots(count, review_hours=review_hours, last_hour=last_hour)
     wp.list_posts.cache_clear()
     taken = []
     for p in wp.list_posts("publish,future"):
@@ -95,7 +148,11 @@ def publish_folder(folder: str, publish_at: datetime | None, force: bool = False
     clash = [p for p in existing if p["slug"] == post["slug"]]
     if clash:
         raise SystemExit(f"A post with slug '{post['slug']}' already exists: {clash[0]['link']}")
+    post = ensure_inline_images(post, folder_p)
     content, inline = insert_inline_images((folder_p / "post.html").read_text(), post, folder_p)
+    for item, entry in zip(inline, post["inline_images"]):
+        if entry.get("backup"):
+            item["backup"] = entry["backup"]
     created = wp.create_post(
         title=post["h1"], content=content, slug=post["slug"],
         excerpt=post["meta_description"], categories=CATEGORY_IDS.get(post["pillar"], CATEGORY_IDS["default"]),
@@ -133,13 +190,14 @@ def attach_image(post_id: int, folder: Path) -> dict:
         return {"engine": "none", "error": str(e)[:200]}
 
 
-def next_slots(count: int, now: datetime | None = None) -> list[datetime]:
+def next_slots(count: int, now: datetime | None = None, review_hours: float | None = None,
+               last_hour: int | None = None) -> list[datetime]:
     """Publish times for today's posts, spread across the configured IST window and starting
     no earlier than min_review_hours from now. If today's window is (nearly) over, use tomorrow's."""
     from datetime import timedelta
     now = (now or datetime.now(wp.IST)).astimezone(wp.IST)
-    first, last = SCHEDULE["first_hour_ist"], SCHEDULE["last_hour_ist"]
-    earliest = now + timedelta(hours=SCHEDULE["min_review_hours"])
+    first, last = SCHEDULE["first_hour_ist"], last_hour or SCHEDULE["last_hour_ist"]
+    earliest = now + timedelta(hours=SCHEDULE["min_review_hours"] if review_hours is None else review_hours)
     day = now
     for _ in range(2):
         start = day.replace(hour=first, minute=0, second=0, microsecond=0)
@@ -202,7 +260,9 @@ def digest(day: datetime | None = None) -> tuple[str, str]:
             lines.append(f"   Image: MISSING, add one before it goes live ({img.get('error', '')[:80]})")
         bad_inline = [x for x in e.get("inline_images", []) if x.get("error")]
         ok_inline = len(e.get("inline_images", [])) - len(bad_inline)
-        lines.append(f"   In-article images: {ok_inline} placed" + (f", {len(bad_inline)} failed" if bad_inline else ""))
+        backups = [x["backup"] for x in e.get("inline_images", []) if x.get("backup")]
+        lines.append(f"   In-article images: {ok_inline} placed" + (f", {len(bad_inline)} failed" if bad_inline else "")
+                     + (f" (backups used: {', '.join(backups)})" if backups else ""))
         lines += [f"   Check: {w}" for w in e.get("warnings", [])]
         lines.append("")
     lines.append("Indexing: Rank Math submits each post to Bing and IndexNow when it goes live; Google picks it up from the sitemap.")

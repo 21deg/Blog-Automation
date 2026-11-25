@@ -214,3 +214,58 @@ def make_featured_image(post, folder: str, engine: str | None = None, log=print)
     meta = {"path": str(out), "engine": used, "note": note, "prompt": build_prompt(post), "alt": post.image_alt}
     (Path(folder) / "featured.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
     return meta
+
+
+# ---------------------------------------------------------------- in-article image backups
+
+def openverse_search(query: str, n: int = 8) -> list[dict]:
+    """Free, commercial-use images from Openverse (CC0, public domain, CC BY). CC BY needs the
+    attribution text in the caption, which the caller adds."""
+    from urllib.parse import urlencode
+    url = "https://api.openverse.org/v1/images/?" + urlencode({
+        "q": query, "license": "cc0,pdm,by", "license_type": "commercial", "page_size": n,
+        "mature": "false"})
+    req = urllib.request.Request(url, headers={"User-Agent": "21degrees-blog-automation"})
+    with urllib.request.urlopen(req, timeout=40) as resp:
+        data = json.loads(resp.read().decode())
+    out = []
+    for r in data.get("results", []):
+        if (r.get("width") or 0) < 800 or (r.get("height") or 0) < 450:
+            continue
+        lic = f"{r.get('license', '').upper()} {r.get('license_version') or ''}".strip()
+        credit = "Public domain" if r.get("license") in ("cc0", "pdm") else \
+            f"Photo: {r.get('creator') or 'unknown'}, CC {lic}"
+        out.append({"url": r["url"], "title": r.get("title", ""), "credit": credit,
+                    "landing": r.get("foreign_landing_url", "")})
+    return out
+
+
+def download_image(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": "21degrees-blog-automation"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return resp.read()
+
+
+def key_point_card(label: str, text: str) -> bytes:
+    """Last-resort in-article image: a branded card with one key point from the post."""
+    img = Image.new("RGB", SIZE, OFFWHITE)
+    d = ImageDraw.Draw(img)
+    W, H = SIZE
+    d.rectangle([0, 0, 28, H], fill=TEAL)
+    d.rectangle([110, 150, 200, 162], fill=SAFFRON)
+    d.text((110, 190), label.upper(), font=_font("SemiBold", 34), fill=TEAL)
+    size = 64
+    while size > 40:
+        font = _font("SemiBold", size)
+        lines = _wrap(d, text, font, 1300)
+        if len(lines) <= 7:
+            break
+        size -= 4
+    y = 270
+    for line in lines[:8]:
+        d.text((110, y), line, font=font, fill=NAVY)
+        y += int(size * 1.3)
+    d.text((110, H - 110), "21DEGREES", font=_font("Bold", 40), fill=NAVY)
+    buf = io.BytesIO()
+    img.save(buf, "JPEG", quality=90, optimize=True)
+    return buf.getvalue()

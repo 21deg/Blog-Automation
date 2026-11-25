@@ -90,7 +90,8 @@ def cmd_slots(args):
 
 
 def cmd_publish(args):
-    at = publisher.next_slots(args.count)[args.slot - 1] if args.slot else publisher.next_free_slot(args.count)
+    at = (publisher.next_slots(args.count, review_hours=args.review_hours, last_hour=args.last_hour)[args.slot - 1]
+          if args.slot else publisher.next_free_slot(args.count, review_hours=args.review_hours, last_hour=args.last_hour))
     e = publisher.publish_folder(args.folder, at, force=args.force, draft=args.draft, source=args.source)
     print(json.dumps(e, ensure_ascii=False, indent=1))
 
@@ -156,6 +157,8 @@ def main(argv=None):
     s_ = sub.add_parser("slots"); s_.add_argument("--count", type=int, default=10); s_.set_defaults(func=cmd_slots)
     pb = sub.add_parser("publish")
     pb.add_argument("folder"); pb.add_argument("--slot", type=int, help="force a slot; default: next free slot")
+    pb.add_argument("--review-hours", type=float, help="hours before the first post may go live (default 4)")
+    pb.add_argument("--last-hour", type=int, help="latest publish hour IST (default 20)")
     pb.add_argument("--source", default="", help="e.g. trend:law-government, trend:entertainment-games, trend:rest, backlog")
     pb.add_argument("--count", type=int, default=10, help="total posts today (spreads the slots)")
     pb.add_argument("--force", action="store_true"); pb.add_argument("--draft", action="store_true")
