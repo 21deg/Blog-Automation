@@ -269,13 +269,21 @@ def digest(day: datetime | None = None) -> tuple[str, str]:
     return subject, "\n".join(lines)
 
 
-def index_today(day: datetime | None = None) -> dict:
-    """Submit every post that went live today to IndexNow (Bing, Yandex and others, via Rank Math)
-    and check each one is in the sitemap Google reads."""
+def index_today(hours: int = 26) -> dict:
+    """Submit every post that went live in the last `hours` hours to IndexNow (Bing, Yandex and
+    others, via Rank Math) and check each one is in the sitemap Google reads."""
     import urllib.request
-    day = (day or datetime.now(wp.IST)).astimezone(wp.IST)
+    from datetime import timedelta
+    now = datetime.now(wp.IST)
     wp.list_posts.cache_clear()
-    live = [p for p in wp.list_posts("publish") if p["date"][:10] == day.strftime("%Y-%m-%d")]
+    live = []
+    for p in wp.list_posts("publish"):
+        try:
+            when = datetime.fromisoformat(p["date"]).replace(tzinfo=wp.IST)
+        except ValueError:
+            continue
+        if now - timedelta(hours=hours) <= when <= now:
+            live.append(p)
     urls = [p["link"] for p in live]
     result = wp.submit_for_indexing(urls) if urls else {"message": "nothing published today"}
     req = urllib.request.Request("https://21degrees.in/post-sitemap.xml", headers={"User-Agent": "Mozilla/5.0"})
