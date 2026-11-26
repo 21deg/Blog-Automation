@@ -371,6 +371,10 @@ def reimage_post(post_id: int, featured_query: str, inline_queries: list[str], l
         wp.set_featured_image(post_id, media["id"])
         content = add_featured_credit(content, unsplash.credit_html(photo))
         report["featured"] = {"media_id": media["id"], "credit": unsplash.credit_text(photo)}
+    if not inline_queries:  # featured only: keep the in-article images as they are
+        wp._request("POST", f"/wp/v2/posts/{post_id}", {"content": content})
+        report["inline"] = "kept"
+        return report
     # remove previously inserted in-article figures
     content, removed = re.subn(r'\n?<figure class="wp-block-image[^"]*">.*?</figure>\n?', "\n", content, flags=re.S)
     report["removed_figures"] = removed
