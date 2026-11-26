@@ -29,7 +29,8 @@ Then check how many posts this run should write:
 ```bash
 python -m blog_automation quota --batch 5
 ```
-The day's 10 posts are written in **two runs of 5** (05:33 and 11:33 IST) to stay within the
+The day's 10 posts are written in **two runs of 5** (05:33 and 11:33 IST; the first run's posts go
+live in the morning, the second run's in the evening) to stay within the
 5-hour usage limit. Posts already scheduled for that day count towards the 10. Write exactly
 `to_write` posts (never more), keeping the bucket mix in proportion: the first run of the day
 takes about 3 Law & Government, 1 Entertainment/Games and 1 other; the second run fills what is
@@ -114,10 +115,11 @@ key-point card. The digest lists every backup used.
 ## 5. Schedule and index
 For each passed post, as soon as it passes:
 ```bash
-python -m blog_automation publish <output folder> --source trend:<bucket>
+python -m blog_automation publish <output folder> --source trend:<bucket> --window <morning|evening>
 ```
-`publish` picks the next free time slot between 11:00 and 20:00 IST (at least 4 hours after this
-run), uploads the featured and in-article images with alt text, sets the Rank Math SEO fields
+Use `--window morning` if this run started before 11:00 IST (the 05:33 run): posts go live
+10:00–12:00 IST. Use `--window evening` for the 11:33 run: posts go live 17:00–19:00 IST.
+`publish` picks the next free 30-minute slot in that window (at least 4 hours after now), uploads the featured and in-article images with alt text, sets the Rank Math SEO fields
 and schedules the post. Each post is submitted for indexing when it goes live (Rank Math
 IndexNow). An evening task runs `python -m blog_automation index` to submit every post that
 went live and confirm it is in the sitemap Google reads.

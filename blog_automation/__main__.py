@@ -90,6 +90,13 @@ def cmd_slots(args):
 
 
 def cmd_publish(args):
+    if args.window:
+        from .config import SCHEDULE
+        first, last = SCHEDULE["windows"][args.window]
+        at = publisher.next_free_slot(SCHEDULE["batch"], review_hours=args.review_hours, last_hour=last, first_hour=first)
+        e = publisher.publish_folder(args.folder, at, force=args.force, draft=args.draft, source=args.source)
+        print(json.dumps(e, ensure_ascii=False, indent=1))
+        return
     at = (publisher.next_slots(args.count, review_hours=args.review_hours, last_hour=args.last_hour)[args.slot - 1]
           if args.slot else publisher.next_free_slot(args.count, review_hours=args.review_hours, last_hour=args.last_hour))
     e = publisher.publish_folder(args.folder, at, force=args.force, draft=args.draft, source=args.source)
@@ -173,6 +180,7 @@ def main(argv=None):
     s_ = sub.add_parser("slots"); s_.add_argument("--count", type=int, default=10); s_.set_defaults(func=cmd_slots)
     pb = sub.add_parser("publish")
     pb.add_argument("folder"); pb.add_argument("--slot", type=int, help="force a slot; default: next free slot")
+    pb.add_argument("--window", choices=["morning", "evening"], help="publish inside this run's window (config SCHEDULE.windows)")
     pb.add_argument("--review-hours", type=float, help="hours before the first post may go live (default 4)")
     pb.add_argument("--last-hour", type=int, help="latest publish hour IST (default 20)")
     pb.add_argument("--source", default="", help="e.g. trend:law-government, trend:entertainment-games, trend:rest, backlog")

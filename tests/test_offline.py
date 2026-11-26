@@ -183,3 +183,14 @@ def test_ensure_inline_images_fills_gaps(monkeypatch, tmp_path):
     assert len(out["inline_images"]) == 2
     assert (tmp_path / "inline-1.jpg").exists() and (tmp_path / "inline-2.jpg").exists()
     assert {e["backup"] for e in out["inline_images"]} == {"key-point-card"}
+
+
+def test_morning_and_evening_windows():
+    from datetime import datetime
+    from blog_automation import publisher, wordpress as wp
+    m = publisher.next_slots(5, datetime(2026, 11, 26, 5, 33, tzinfo=wp.IST), first_hour=10, last_hour=12)
+    assert [s.strftime("%H:%M") for s in m] == ["10:00", "10:30", "11:00", "11:30", "12:00"]
+    e = publisher.next_slots(5, datetime(2026, 11, 26, 11, 33, tzinfo=wp.IST), first_hour=17, last_hour=19)
+    assert e[0].strftime("%H:%M") == "17:00" and e[-1].strftime("%H:%M") == "19:00"
+    late = publisher.next_slots(5, datetime(2026, 11, 26, 9, 0, tzinfo=wp.IST), first_hour=10, last_hour=12)
+    assert late[0].day == 27  # morning window already inside the review period -> next morning

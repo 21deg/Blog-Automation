@@ -132,10 +132,11 @@ def insert_inline_images(html_text: str, post: dict, folder: Path, log=print) ->
     return html_text, placed
 
 
-def next_free_slot(count: int = 10, review_hours: float | None = None, last_hour: int | None = None) -> datetime:
+def next_free_slot(count: int = 10, review_hours: float | None = None, last_hour: int | None = None,
+                   first_hour: int | None = None) -> datetime:
     """The earliest of today's slots that no scheduled or published post already occupies
     (posts within 20 minutes of a slot count as occupying it). Fixes double-booked times."""
-    slots = next_slots(count, review_hours=review_hours, last_hour=last_hour)
+    slots = next_slots(count, review_hours=review_hours, last_hour=last_hour, first_hour=first_hour)
     wp.list_posts.cache_clear()
     taken = []
     for p in wp.list_posts("publish,future"):
@@ -233,19 +234,19 @@ def attach_image(post_id: int, folder: Path) -> dict:
 
 
 def next_slots(count: int, now: datetime | None = None, review_hours: float | None = None,
-               last_hour: int | None = None) -> list[datetime]:
+               last_hour: int | None = None, first_hour: int | None = None) -> list[datetime]:
     """Publish times for today's posts, spread across the configured IST window and starting
     no earlier than min_review_hours from now. If today's window is (nearly) over, use tomorrow's."""
     from datetime import timedelta
     now = (now or datetime.now(wp.IST)).astimezone(wp.IST)
-    first, last = SCHEDULE["first_hour_ist"], last_hour or SCHEDULE["last_hour_ist"]
+    first, last = first_hour or SCHEDULE["first_hour_ist"], last_hour or SCHEDULE["last_hour_ist"]
     earliest = now + timedelta(hours=SCHEDULE["min_review_hours"] if review_hours is None else review_hours)
     day = now
     for _ in range(2):
         start = day.replace(hour=first, minute=0, second=0, microsecond=0)
         end = day.replace(hour=last, minute=0, second=0, microsecond=0)
         start = max(start, earliest)
-        if end - start >= timedelta(hours=1):
+        if end - start >= timedelta(minutes=30 if first_hour else 60) or (first_hour and end >= start):
             step = (end - start) / max(1, count - 1) if count > 1 else timedelta(0)
             return [(start + i * step).replace(second=0, microsecond=0) for i in range(count)]
         day = (day + timedelta(days=1)).replace(hour=0, minute=0)

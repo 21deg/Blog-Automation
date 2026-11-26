@@ -81,7 +81,10 @@ CATEGORY_IDS = {
 
 # Daily schedule: posts go live spread between these hours (IST), each at least
 # min_review_hours after the run that created it, so there is time to review.
-SCHEDULE = {"posts_per_day": 10, "first_hour_ist": 11, "last_hour_ist": 20, "min_review_hours": 4}
+SCHEDULE = {"posts_per_day": 10, "first_hour_ist": 11, "last_hour_ist": 20, "min_review_hours": 4,
+            # two runs a day of 5 posts each: the morning run's posts go live 10:00-12:00 IST,
+            # the second run's posts 17:00-19:00 IST (every 30 minutes)
+            "windows": {"morning": [10, 12], "evening": [17, 19]}, "batch": 5}
 
 # Featured images. engine: "auto" tries Nano Banana (needs a Google AI Studio key with billing,
 # about $0.034 per image) and falls back to a free branded title card; "card" never calls the API.
