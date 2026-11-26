@@ -158,6 +158,20 @@ def _normalise(data: bytes) -> bytes:
 
 
 RENDER_JS = Path(__file__).resolve().parent.parent / "scripts" / "render_svg.js"
+USED_IDS = Path(__file__).resolve().parent.parent / "output" / "unsplash-used.json"
+
+
+def used_unsplash_ids() -> set[str]:
+    try:
+        return set(json.loads(USED_IDS.read_text()))
+    except Exception:  # noqa: BLE001
+        return set()
+
+
+def remember_unsplash_id(photo_id: str) -> None:
+    USED_IDS.parent.mkdir(exist_ok=True)
+    ids = used_unsplash_ids() | {photo_id}
+    USED_IDS.write_text(json.dumps(sorted(ids)))
 
 
 def check_svg(svg: str) -> None:
@@ -192,6 +206,19 @@ def make_featured_image(post, folder: str, engine: str | None = None, log=print)
                 data, used = _normalise(provided.read_bytes()), "canva"
             except Exception as e:  # noqa: BLE001
                 note = f"Canva image unreadable: {e}"[:200]
+    credit = None
+    if data is None and engine in ("unsplash", "auto"):
+        try:
+            from . import unsplash
+            photo = unsplash.first_photo([getattr(post, "featured_search_query", ""), post.focus_keyword],
+                                         skip_ids=used_unsplash_ids())
+            if photo:
+                data, used = _normalise(unsplash.fetch(photo)), "unsplash"
+                credit = {"text": unsplash.credit_text(photo), "html": unsplash.credit_html(photo), "id": photo["id"]}
+                remember_unsplash_id(photo["id"])
+        except Exception as e:  # noqa: BLE001
+            note = f"Unsplash unavailable: {e}"[:200]
+            log(f"  {note}")
     svg = Path(folder) / "featured.svg"
     if data is None and svg.exists() and engine != "card-only":
         try:
@@ -211,7 +238,8 @@ def make_featured_image(post, folder: str, engine: str | None = None, log=print)
     if data is None:
         data, used = branded_card(post.title_tag, post.pillar), "branded-card"
     out.write_bytes(data)
-    meta = {"path": str(out), "engine": used, "note": note, "prompt": build_prompt(post), "alt": post.image_alt}
+    meta = {"path": str(out), "engine": used, "note": note, "prompt": build_prompt(post), "alt": post.image_alt,
+            "credit": credit}
     (Path(folder) / "featured.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1))
     return meta
 

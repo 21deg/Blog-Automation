@@ -67,3 +67,6 @@ startups). Busy, practical, sceptical of jargon. They search Google and ask Chat
   the house style from prompts/image_style.md. For trending people or events, use a symbolic scene,
   never a real person's likeness.
 - image_alt: a plain description of what the image shows, under 125 characters.
+- featured_search_query: 2-4 plain English words for the Unsplash featured photo.
+- inline_images: 2-3 entries, each under a real section heading, with a search_query of 2-4 plain
+  English words for an Unsplash photo that fits that section.

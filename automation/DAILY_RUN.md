@@ -90,30 +90,18 @@ The subagent must:
 If a post still fails after 3 attempts, or research turns up too little to support it, mark the
 topic failed and start the next replacement from the same bucket straight away.
 
-## 4. Images
-House style for every image: `blog_automation/prompts/image_style.md` (flat editorial
-illustration; navy, teal, beige and saffron; Indian people and settings; ₹ only, never $; no
-logos; no real people's likenesses).
+## 4. Images (Unsplash photos, free)
+All images come from **Unsplash** by default; the scripts fetch them, credit the photographer and
+upload them. The writer only chooses good search phrases:
+- `featured_search_query`: 2–4 plain English words for a striking, relevant photo
+  (for example "indian courtroom", "petrol pump india", "chess tournament", "film set").
+- each `inline_images[i].search_query`: a different phrase per image, matched to its section.
+- Avoid phrases that would return a specific real person's face.
 
-**If Canva tools (`mcp__Canva__*`) are available**, use them for the featured image and the scene
-image:
-1. `generate-image` with the prompt (house style written into the prompt) and
-   `aspectRatio: LANDSCAPE_3_2`, then poll `get-generate-image-job` until SUCCESS. Note the
-   media id.
-2. `create-design` with brief "A single full-bleed landscape image using the supplied picture
-   exactly as it is, filling the whole page edge to edge. No text, no logo, no extra elements.",
-   format "Blog Banner (Landscape)", `references: [<media id>]`. Poll
-   `get-create-design-async-job`.
-3. `export-design` as `{"type": "jpg", "quality": 90, "width": 1536}` and download the URL with
-   curl to `work/<n>/featured-canva.jpg` (featured) or `work/<n>/inline-<i>.jpg` (in-article).
-
-Give every in-article image a `search_query` (2–4 plain English words, for example "supreme court
-india" or "cricket stadium"). If an image can't be made, `publish` uses it to find a backup.
-
-**If Canva is unavailable or fails** (no tools, quota used up, or an error), draw SVG instead,
-following `blog_automation/prompts/illustration_guide.md`: `work/<n>/featured.svg` and
-`work/<n>/inline-<i>.svg`. Charts, checklists and diagrams are always drawn as SVG. Then render
-and look once: `python -m blog_automation image <output folder>`.
+Do not create `featured.*` or `inline-*` files unless the image must be a chart or diagram that a
+photo can't show; then draw it as `work/<n>/inline-<i>.svg` (see `prompts/illustration_guide.md`).
+`publish` takes care of the rest: Unsplash first, then Openverse, then drawings, then a branded
+card, so a post always goes out with a featured image and at least 2 in-article images.
 
 **Never hold a post back for images.** If a post ends up with fewer than 2 in-article images, or
 an image file is missing, publish it anyway: `publish` fills each gap automatically, first with

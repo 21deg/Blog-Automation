@@ -129,6 +129,10 @@ def cmd_quota(args):
     print(json.dumps(publisher.quota(args.target), ensure_ascii=False, indent=1))
 
 
+def cmd_reimage(args):
+    print(json.dumps(publisher.reimage_post(args.post_id, args.featured, args.inline), ensure_ascii=False, indent=1))
+
+
 def cmd_wp_check(args):
     print(json.dumps(wordpress.whoami(), indent=1))
 
@@ -169,6 +173,9 @@ def main(argv=None):
     pb.set_defaults(func=cmd_publish)
     sub.add_parser("digest").set_defaults(func=cmd_digest)
     sub.add_parser("wp-check").set_defaults(func=cmd_wp_check)
+    ri = sub.add_parser("reimage", help="replace a post's featured and in-article images with Unsplash photos")
+    ri.add_argument("post_id", type=int); ri.add_argument("--featured", required=True)
+    ri.add_argument("--inline", nargs="+", default=[]); ri.set_defaults(func=cmd_reimage)
     qu = sub.add_parser("quota", help="posts still needed for the publishing day"); qu.add_argument("--target", type=int, default=10)
     qu.set_defaults(func=cmd_quota)
     sub.add_parser("index", help="submit today's live posts for indexing and check the sitemap").set_defaults(func=cmd_index)

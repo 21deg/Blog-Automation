@@ -51,7 +51,19 @@ def ensure_inline_images(post: dict, folder: Path, minimum: int = 2, log=print) 
             continue
         made = False
         queries = [q for q in (e.get("search_query"), post.get("focus_keyword"), "india business office") if q]
-        for q in queries:
+        try:
+            from . import unsplash
+            photo = unsplash.first_photo(queries, skip_ids=images.used_unsplash_ids())
+            if photo:
+                (folder / f"inline-{i}.jpg").write_bytes(images._normalise(unsplash.fetch(photo)))
+                images.remember_unsplash_id(photo["id"])
+                e["credit_html"] = unsplash.credit_html(photo)
+                e["alt"] = e.get("alt") or photo["description"]
+                e["backup"] = "unsplash"
+                made = True
+        except Exception as ex:  # noqa: BLE001
+            log(f"  Unsplash unavailable: {ex}")
+        for q in ([] if made else queries):
             try:
                 for cand in images.openverse_search(q):
                     try:
@@ -100,7 +112,9 @@ def insert_inline_images(html_text: str, post: dict, folder: Path, log=print) ->
             media = wp.upload_media(data, f"{post['slug']}-{i}.jpg", "image/jpeg", alt_text=img["alt"], title=img["caption"])
             figure = (f'<figure class="wp-block-image size-large"><img src="{media["url"]}" alt="{htmlmod.escape(img["alt"], quote=True)}" '
                       f'class="wp-image-{media["id"]}" loading="lazy" width="1536" height="1024"/>'
-                      f'<figcaption>{htmlmod.escape(img["caption"])}</figcaption></figure>')
+                      f'<figcaption>{htmlmod.escape(img["caption"])}'
+                      + (f' <span class="photo-credit">{img["credit_html"]}</span>' if img.get("credit_html") else "")
+                      + '</figcaption></figure>')
             heading = re.escape(htmlmod.escape(img["after_heading"].strip(), quote=False))
             m = re.search(rf"<h2[^>]*>\s*{heading}\s*</h2>", html_text, re.I)
             if not m:
@@ -150,6 +164,9 @@ def publish_folder(folder: str, publish_at: datetime | None, force: bool = False
         raise SystemExit(f"A post with slug '{post['slug']}' already exists: {clash[0]['link']}")
     post = ensure_inline_images(post, folder_p)
     content, inline = insert_inline_images((folder_p / "post.html").read_text(), post, folder_p)
+    feat_meta = featured_meta(folder_p)
+    if (feat_meta.get("credit") or {}).get("html"):
+        content = add_featured_credit(content, feat_meta["credit"]["html"])
     for item, entry in zip(inline, post["inline_images"]):
         if entry.get("backup"):
             item["backup"] = entry["backup"]
@@ -169,6 +186,31 @@ def publish_folder(folder: str, publish_at: datetime | None, force: bool = False
     log.append(entry)
     log_path.write_text(json.dumps(log, ensure_ascii=False, indent=1))
     return entry
+
+
+def featured_meta(folder: Path) -> dict:
+    """Make the featured image now (if not made yet) so its credit can go into the post."""
+    from .generator import BlogPost
+    from . import images
+    meta_path = folder / "featured.json"
+    if meta_path.exists() and (folder / "featured.jpg").exists():
+        return json.loads(meta_path.read_text())
+    try:
+        post = BlogPost.model_validate_json((folder / "post.json").read_text())
+        return images.make_featured_image(post, str(folder))
+    except Exception as e:  # noqa: BLE001
+        return {"engine": "none", "error": str(e)[:200]}
+
+
+CREDIT_MARK = "<!-- featured-credit -->"
+
+
+def add_featured_credit(content: str, credit_html: str) -> str:
+    import re
+    content = re.sub(rf"{re.escape(CREDIT_MARK)}.*?{re.escape(CREDIT_MARK)}\n?", "", content, flags=re.S)
+    line = f'{CREDIT_MARK}<p class="featured-image-credit"><small>Featured image: {credit_html}</small></p>{CREDIT_MARK}\n'
+    i = content.find('<script type="application/ld+json">')
+    return content[:i] + line + content[i:] if i != -1 else content + line
 
 
 def attach_image(post_id: int, folder: Path) -> dict:
@@ -300,3 +342,54 @@ def quota(target: int = 10) -> dict:
     on_day = [p for p in wp.list_posts("publish,future") if p["date"][:10] == day.isoformat()]
     return {"day": day.isoformat(), "already_scheduled": len(on_day), "to_write": max(0, target - len(on_day)),
             "titles": [p["title"] for p in on_day]}
+
+
+# ------------------------------------------------------------------ re-image existing posts
+
+def reimage_post(post_id: int, featured_query: str, inline_queries: list[str], log=print) -> dict:
+    """Replace a live or scheduled post's featured image and in-article images with Unsplash photos.
+    In-article images that this tool inserted before (figures with a wp-image class) are removed and
+    new ones placed under the first section headings, one per query."""
+    import html as htmlmod
+    import re
+    from . import images, unsplash
+    p, _ = wp._request("GET", f"/wp/v2/posts/{post_id}", params={"context": "edit"})
+    slug, content = p["slug"], p["content"]["raw"]
+    used = images.used_unsplash_ids()
+    report = {"post": post_id, "slug": slug}
+    # featured
+    photo = unsplash.first_photo([featured_query], skip_ids=used)
+    if not photo:
+        raise RuntimeError(f"No Unsplash photo for '{featured_query}'")
+    used.add(photo["id"]); images.remember_unsplash_id(photo["id"])
+    media = wp.upload_media(images._normalise(unsplash.fetch(photo)), f"{slug}.jpg", "image/jpeg",
+                            alt_text=photo["description"] or featured_query, title=p["title"]["raw"])
+    wp.set_featured_image(post_id, media["id"])
+    content = add_featured_credit(content, unsplash.credit_html(photo))
+    report["featured"] = {"media_id": media["id"], "credit": unsplash.credit_text(photo)}
+    # remove previously inserted in-article figures
+    content, removed = re.subn(r'\n?<figure class="wp-block-image[^"]*">.*?</figure>\n?', "\n", content, flags=re.S)
+    report["removed_figures"] = removed
+    # place new in-article photos under the first content headings (skip FAQ / bottom line)
+    heads = [m for m in re.finditer(r"<h2[^>]*>(.*?)</h2>", content, re.S)
+             if not re.search(r"(?i)frequently asked|bottom line", m.group(1))]
+    targets = [heads[i] for i in range(len(heads)) if i in (0, 2, 4)][:len(inline_queries)] or heads[:len(inline_queries)]
+    placed = []
+    for m, q in sorted(zip(targets, inline_queries), key=lambda t: t[0].start(), reverse=True):
+        ph = unsplash.first_photo([q], skip_ids=used)
+        if not ph:
+            placed.append({"query": q, "error": "no photo"}); continue
+        used.add(ph["id"]); images.remember_unsplash_id(ph["id"])
+        md = wp.upload_media(images._normalise(unsplash.fetch(ph)), f"{slug}-{len(placed) + 1}.jpg", "image/jpeg",
+                             alt_text=ph["description"] or q, title=q)
+        heading = re.sub("<[^>]+>", "", m.group(1)).strip()
+        fig = (f'<figure class="wp-block-image size-large"><img src="{md["url"]}" alt="{htmlmod.escape(ph["description"] or q, quote=True)}" '
+               f'class="wp-image-{md["id"]}" loading="lazy" width="1536" height="1024"/><figcaption>{htmlmod.escape(heading)} '
+               f'<span class="photo-credit">{unsplash.credit_html(ph)}</span></figcaption></figure>')
+        p_end = content.find("</p>", m.end())
+        pos = p_end + 4 if p_end != -1 else m.end()
+        content = content[:pos] + "\n" + fig + "\n" + content[pos:]
+        placed.append({"query": q, "media_id": md["id"], "credit": unsplash.credit_text(ph)})
+    wp._request("POST", f"/wp/v2/posts/{post_id}", {"content": content})
+    report["inline"] = placed
+    return report

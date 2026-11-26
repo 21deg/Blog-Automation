@@ -47,6 +47,7 @@ class BlogPost(BaseModel):
     cta: str
     image_alt: str
     image_prompt: str
+    featured_search_query: str = ""  # 2-4 plain English words for the Unsplash featured photo
     inline_images: list[InlineImage] = []
 
 
