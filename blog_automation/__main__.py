@@ -14,14 +14,17 @@ Without an API key (Claude in a Claude Code session does the writing):
   python -m blog_automation wp-check            # verify the WordPress login
   python -m blog_automation fetch URL [URL...]  # readable text of a page, for research
   python -m blog_automation image output/<folder> [--post-id N]  # featured image (+ attach)
+  python -m blog_automation sitemap [--output PATH]  # generate sitemap.xml
+  python -m blog_automation robots [--output PATH]   # generate robots.txt
 """
 from __future__ import annotations
 
 import argparse
 import json
 import sys
+from pathlib import Path
 
-from . import generator, picker, publisher, trends, wordpress
+from . import generator, picker, publisher, trends, wordpress, indexing
 from .config import DEFAULT_GEO
 
 
@@ -152,6 +155,22 @@ def cmd_wp_check(args):
     print(json.dumps(wordpress.whoami(), indent=1))
 
 
+def cmd_sitemap(args):
+    output = Path(args.output) if args.output else Path("sitemap.xml")
+    xml = indexing.generate_sitemap(output)
+    print(f"Sitemap generated: {output}")
+    print(f"Total entries in XML: {xml.count('<url>')}")
+
+
+def cmd_robots(args):
+    output = Path(args.output) if args.output else Path("robots.txt")
+    content = indexing.get_robots_txt()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(content)
+    print(f"robots.txt generated: {output}")
+    print(f"Entries:\n{content}")
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="blog_automation")
     p.add_argument("--geo", default=DEFAULT_GEO, help="Google Trends country code (default IN)")
@@ -203,6 +222,12 @@ def main(argv=None):
     im.set_defaults(func=cmd_image)
     fe = sub.add_parser("fetch"); fe.add_argument("urls", nargs="+"); fe.add_argument("--max-chars", type=int, default=12000)
     fe.set_defaults(func=cmd_fetch)
+    sm = sub.add_parser("sitemap", help="generate sitemap.xml for all published posts")
+    sm.add_argument("--output", default="sitemap.xml", help="output file path (default: sitemap.xml)")
+    sm.set_defaults(func=cmd_sitemap)
+    rb = sub.add_parser("robots", help="generate robots.txt for search engine crawlers")
+    rb.add_argument("--output", default="robots.txt", help="output file path (default: robots.txt)")
+    rb.set_defaults(func=cmd_robots)
     args = p.parse_args(argv)
     try:
         args.func(args)

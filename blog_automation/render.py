@@ -50,4 +50,5 @@ def to_html(post) -> str:
     return (f"<!-- Title tag: {html.escape(post.title_tag)} -->\n"
             f"<!-- Meta description: {html.escape(post.meta_description)} -->\n"
             f"<!-- Slug: {post.slug} | Focus keyword: {html.escape(post.focus_keyword)} -->\n"
+            f"<!-- SEO: robots=index,follow | index-after-publish=true -->\n"
             f"{content}\n<script type=\"application/ld+json\">\n{faq_jsonld(post)}\n</script>\n")
