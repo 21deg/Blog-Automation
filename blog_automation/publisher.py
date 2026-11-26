@@ -357,16 +357,17 @@ def reimage_post(post_id: int, featured_query: str, inline_queries: list[str], l
     slug, content = p["slug"], p["content"]["raw"]
     used = images.used_unsplash_ids()
     report = {"post": post_id, "slug": slug}
-    # featured
-    photo = unsplash.first_photo([featured_query], skip_ids=used)
-    if not photo:
-        raise RuntimeError(f"No Unsplash photo for '{featured_query}'")
-    used.add(photo["id"]); images.remember_unsplash_id(photo["id"])
-    media = wp.upload_media(images._normalise(unsplash.fetch(photo)), f"{slug}.jpg", "image/jpeg",
-                            alt_text=photo["description"] or featured_query, title=p["title"]["raw"])
-    wp.set_featured_image(post_id, media["id"])
-    content = add_featured_credit(content, unsplash.credit_html(photo))
-    report["featured"] = {"media_id": media["id"], "credit": unsplash.credit_text(photo)}
+    # featured (empty query = keep the current featured image)
+    if featured_query:
+        photo = unsplash.first_photo([featured_query], skip_ids=used)
+        if not photo:
+            raise RuntimeError(f"No Unsplash photo for '{featured_query}'")
+        used.add(photo["id"]); images.remember_unsplash_id(photo["id"])
+        media = wp.upload_media(images._normalise(unsplash.fetch(photo)), f"{slug}.jpg", "image/jpeg",
+                                alt_text=photo["description"] or featured_query, title=p["title"]["raw"])
+        wp.set_featured_image(post_id, media["id"])
+        content = add_featured_credit(content, unsplash.credit_html(photo))
+        report["featured"] = {"media_id": media["id"], "credit": unsplash.credit_text(photo)}
     # remove previously inserted in-article figures
     content, removed = re.subn(r'\n?<figure class="wp-block-image[^"]*">.*?</figure>\n?', "\n", content, flags=re.S)
     report["removed_figures"] = removed

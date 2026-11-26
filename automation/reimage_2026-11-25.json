@@ -1,0 +1,20 @@
+[
+ {"id": 2030, "featured": "accountant tax documents", "inline": ["business strategy meeting", "financial planning charts"]},
+ {"id": 2033, "featured": "business executive office", "inline": ["startup team laptop", "salary budget calculator"]},
+ {"id": 2036, "featured": "monthly planner desk", "inline": ["financial report review", "business dashboard laptop"]},
+ {"id": 2039, "featured": "ecommerce packages warehouse", "inline": ["online shopping delivery", "cash flow business"]},
+ {"id": 2042, "featured": "invoices accounting desk", "inline": ["tax filing laptop", "calculator receipts"]},
+ {"id": 2045, "featured": "delhi skyline", "inline": ["business consultant meeting", "checklist clipboard"]},
+ {"id": 2048, "featured": "business interview meeting", "inline": ["questions notebook", "handshake office"]},
+ {"id": 2051, "featured": "remote work video call", "inline": ["part time office desk", "business decision"]},
+ {"id": 2029, "featured": "", "inline": ["retirement savings", "pension planning couple"]},
+ {"id": 2059, "featured": "chess tournament", "inline": ["chess strategy board", "business planning whiteboard"]},
+ {"id": 2064, "featured": "retirement savings india", "inline": ["office employees india", "pension documents"]},
+ {"id": 2069, "featured": "petrol pump india", "inline": ["delivery scooter city", "fuel receipt"]},
+ {"id": 2075, "featured": "constitution of india", "inline": ["courtroom justice scales", "small business owner india"]},
+ {"id": 2080, "featured": "bangalore city office", "inline": ["payroll documents", "tax forms calculator"]},
+ {"id": 2085, "featured": "factory manufacturing india", "inline": ["industrial land construction", "government building india"]},
+ {"id": 2091, "featured": "lottery tickets", "inline": ["income tax documents", "celebration money"]},
+ {"id": 2097, "featured": "film set camera", "inline": ["cinema audience", "business cash flow planning"]},
+ {"id": 2102, "featured": "stock market screen", "inline": ["business savings bank", "investment planning desk"]}
+]

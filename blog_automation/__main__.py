@@ -130,6 +130,14 @@ def cmd_quota(args):
 
 
 def cmd_reimage(args):
+    if args.plan:
+        for item in json.load(open(args.plan)):
+            try:
+                r = publisher.reimage_post(item["id"], item.get("featured", ""), item.get("inline", []))
+            except Exception as e:  # noqa: BLE001
+                r = {"post": item["id"], "error": str(e)[:200]}
+            print(json.dumps(r, ensure_ascii=False))
+        return
     print(json.dumps(publisher.reimage_post(args.post_id, args.featured, args.inline), ensure_ascii=False, indent=1))
 
 
@@ -174,7 +182,8 @@ def main(argv=None):
     sub.add_parser("digest").set_defaults(func=cmd_digest)
     sub.add_parser("wp-check").set_defaults(func=cmd_wp_check)
     ri = sub.add_parser("reimage", help="replace a post's featured and in-article images with Unsplash photos")
-    ri.add_argument("post_id", type=int); ri.add_argument("--featured", required=True)
+    ri.add_argument("post_id", type=int, nargs="?"); ri.add_argument("--featured", default="")
+    ri.add_argument("--plan", help="JSON list of {id, featured, inline} to process in one go")
     ri.add_argument("--inline", nargs="+", default=[]); ri.set_defaults(func=cmd_reimage)
     qu = sub.add_parser("quota", help="posts still needed for the publishing day"); qu.add_argument("--target", type=int, default=10)
     qu.set_defaults(func=cmd_quota)
