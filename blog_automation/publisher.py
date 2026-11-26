@@ -334,13 +334,15 @@ def index_today(hours: int = 26) -> dict:
     return {"submitted": urls, "indexnow": result, "missing_from_sitemap": missing}
 
 
-def quota(target: int = 10) -> dict:
+def quota(target: int = 10, batch: int | None = None) -> dict:
     """How many posts today's run still needs: posts already scheduled or published on the day the
     next free slot falls on count towards the daily target."""
     day = next_slots(target)[0].date()
     wp.list_posts.cache_clear()
     on_day = [p for p in wp.list_posts("publish,future") if p["date"][:10] == day.isoformat()]
-    return {"day": day.isoformat(), "already_scheduled": len(on_day), "to_write": max(0, target - len(on_day)),
+    remaining = max(0, target - len(on_day))
+    return {"day": day.isoformat(), "already_scheduled": len(on_day), "remaining_for_day": remaining,
+            "to_write": min(remaining, batch) if batch else remaining,
             "titles": [p["title"] for p in on_day]}
 
 

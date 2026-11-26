@@ -1,6 +1,6 @@
 # Daily blog run (for the scheduled Claude Code session)
 
-Goal: **schedule 10 posts on 21degrees.in today, every one from today's Google Trends, each with a
+Goal: **schedule this run's share (up to 5) of today's 10 posts on 21degrees.in, every one from today's Google Trends, each with a
 featured image and at least 2 in-article images, then get them indexed.** Claude in this session
 picks topics, researches, writes and makes images. The repo's scripts check, render, schedule,
 index and build the digest. No Anthropic API key is needed.
@@ -25,13 +25,16 @@ python -m blog_automation wp-check
 ```
 If `wp-check` fails, retry once after a minute. If it still fails, skip to step 6 and report it.
 
-Then check how many posts the day still needs:
+Then check how many posts this run should write:
 ```bash
-python -m blog_automation quota
+python -m blog_automation quota --batch 5
 ```
-Posts already scheduled for that day (for example from a manual run the evening before) count
-towards the 10. Write only `to_write` posts, keeping the bucket mix in proportion. If `to_write`
-is 0, skip to step 6 and report that the day is already full.
+The day's 10 posts are written in **two runs of 5** (05:33 and 11:33 IST) to stay within the
+5-hour usage limit. Posts already scheduled for that day count towards the 10. Write exactly
+`to_write` posts (never more), keeping the bucket mix in proportion: the first run of the day
+takes about 3 Law & Government, 1 Entertainment/Games and 1 other; the second run fills what is
+left of 4–5 / 3 / 2 (check the titles in the `quota` output). If `to_write` is 0, skip to step 6
+and report that the day is already full.
 
 ## 2. Pick topics from Google Trends (always)
 ```bash

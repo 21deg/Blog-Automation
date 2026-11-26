@@ -126,7 +126,7 @@ def cmd_index(args):
 
 
 def cmd_quota(args):
-    print(json.dumps(publisher.quota(args.target), ensure_ascii=False, indent=1))
+    print(json.dumps(publisher.quota(args.target, args.batch), ensure_ascii=False, indent=1))
 
 
 def cmd_reimage(args):
@@ -186,6 +186,7 @@ def main(argv=None):
     ri.add_argument("--plan", help="JSON list of {id, featured, inline} to process in one go")
     ri.add_argument("--inline", nargs="+", default=[]); ri.set_defaults(func=cmd_reimage)
     qu = sub.add_parser("quota", help="posts still needed for the publishing day"); qu.add_argument("--target", type=int, default=10)
+    qu.add_argument("--batch", type=int, help="max posts this run writes (the day is split into runs)")
     qu.set_defaults(func=cmd_quota)
     sub.add_parser("index", help="submit today's live posts for indexing and check the sitemap").set_defaults(func=cmd_index)
     im = sub.add_parser("image", help="make the featured image; with --post-id also upload and attach it")
