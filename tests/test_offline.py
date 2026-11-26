@@ -175,7 +175,9 @@ def test_inline_images_inserted_under_heading(monkeypatch, tmp_path):
 
 def test_ensure_inline_images_fills_gaps(monkeypatch, tmp_path):
     from blog_automation import publisher, images
+    from blog_automation import unsplash
     monkeypatch.setattr(images, "openverse_search", lambda q, n=8: [])  # offline: force the card backup
+    monkeypatch.setattr(unsplash, "first_photo", lambda *a, **k: None)
     post = {"slug": "s", "h1": "H", "quick_answer": "Short answer.", "focus_keyword": "gst",
             "sections": [{"heading": "A?"}, {"heading": "B?"}, {"heading": "C"}],
             "faqs": [{"question": "Q1?", "answer": "A1."}], "inline_images": []}
