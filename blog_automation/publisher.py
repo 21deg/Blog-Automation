@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 
-from . import wordpress as wp
+from . import wordpress as wp, indexing
 from .config import BACKLOG, CATEGORY_IDS, OUTPUT_DIR, SCHEDULE
 
 USED_FILE = OUTPUT_DIR / "backlog-used.json"
@@ -152,6 +153,31 @@ def next_free_slot(count: int = 10, review_hours: float | None = None, last_hour
     return max(taken) + timedelta(minutes=20)
 
 
+def auto_index_post(post_url: str, post_title: str, log=print) -> dict:
+    """Automatically index a newly published post on Google and other search engines.
+
+    Uses Rank Math's IndexNow integration to submit to Bing, Yandex and others.
+    Google picks up the post from the sitemap within 24-48 hours.
+
+    Returns dict with indexing status and details.
+    """
+    result = {"url": post_url, "title": post_title, "status": "pending", "details": {}}
+
+    try:
+        # Submit to IndexNow (Bing, Yandex, etc.) via Rank Math
+        result["details"]["indexnow"] = wp.submit_for_indexing([post_url])
+        result["status"] = "submitted"
+        log(f"✓ Indexed on search engines: {post_title}")
+        log(f"  URL: {post_url}")
+        log(f"  Response: {result['details']['indexnow']}")
+    except Exception as e:
+        result["status"] = "error"
+        result["details"]["error"] = str(e)[:200]
+        log(f"⚠ Indexing error for {post_title}: {str(e)[:100]}")
+
+    return result
+
+
 def publish_folder(folder: str, publish_at: datetime | None, force: bool = False, draft: bool = False,
                    source: str = "") -> dict:
     folder_p = Path(folder)
@@ -186,6 +212,11 @@ def publish_folder(folder: str, publish_at: datetime | None, force: bool = False
     log = _load(log_path, [])
     log.append(entry)
     log_path.write_text(json.dumps(log, ensure_ascii=False, indent=1))
+
+    # Automatically index published post (not drafts)
+    if not draft and created.get("link"):
+        entry["indexing"] = auto_index_post(created["link"], post["h1"])
+
     return entry
 
 

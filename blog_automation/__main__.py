@@ -14,8 +14,13 @@ Without an API key (Claude in a Claude Code session does the writing):
   python -m blog_automation wp-check            # verify the WordPress login
   python -m blog_automation fetch URL [URL...]  # readable text of a page, for research
   python -m blog_automation image output/<folder> [--post-id N]  # featured image (+ attach)
+
+SEO & Indexing:
   python -m blog_automation sitemap [--output PATH]  # generate sitemap.xml
   python -m blog_automation robots [--output PATH]   # generate robots.txt
+  python -m blog_automation auto-index [--hours N]   # index posts from last N hours
+  python -m blog_automation auto-sitemap             # regenerate sitemap
+  python -m blog_automation indexing-status [--post-id N]  # check indexing status
 """
 from __future__ import annotations
 
@@ -24,7 +29,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import generator, picker, publisher, trends, wordpress, indexing
+from . import generator, picker, publisher, trends, wordpress, indexing, auto_indexing
 from .config import DEFAULT_GEO
 
 
@@ -171,6 +176,21 @@ def cmd_robots(args):
     print(f"Entries:\n{content}")
 
 
+def cmd_auto_index(args):
+    result = auto_indexing.index_new_posts(hours=args.hours)
+    print(json.dumps(result, ensure_ascii=False, indent=1))
+
+
+def cmd_auto_sitemap(args):
+    result = auto_indexing.regenerate_sitemap()
+    print(json.dumps(result, ensure_ascii=False, indent=1))
+
+
+def cmd_indexing_status(args):
+    status = auto_indexing.get_indexing_status(args.post_id)
+    print(json.dumps(status, ensure_ascii=False, indent=1))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="blog_automation")
     p.add_argument("--geo", default=DEFAULT_GEO, help="Google Trends country code (default IN)")
@@ -228,6 +248,14 @@ def main(argv=None):
     rb = sub.add_parser("robots", help="generate robots.txt for search engine crawlers")
     rb.add_argument("--output", default="robots.txt", help="output file path (default: robots.txt)")
     rb.set_defaults(func=cmd_robots)
+    ai = sub.add_parser("auto-index", help="automatically index recently published posts")
+    ai.add_argument("--hours", type=int, default=1, help="look back this many hours for new posts (default: 1)")
+    ai.set_defaults(func=cmd_auto_index)
+    as_ = sub.add_parser("auto-sitemap", help="regenerate sitemap with all published posts")
+    as_.set_defaults(func=cmd_auto_sitemap)
+    is_ = sub.add_parser("indexing-status", help="check indexing status of posts")
+    is_.add_argument("--post-id", type=int, help="check specific post ID")
+    is_.set_defaults(func=cmd_indexing_status)
     args = p.parse_args(argv)
     try:
         args.func(args)
